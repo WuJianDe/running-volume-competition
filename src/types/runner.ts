@@ -1,4 +1,5 @@
 export interface Runner {
+  id: string
   name: string
   avatar: string
   distance: number   // 單位：公尺

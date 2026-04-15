@@ -16,10 +16,13 @@ export function useLeaderboard() {
   const loading = ref(true)
   const error = ref<string | null>(null)
 
-  onMounted(async () => {
+  async function fetchRunners() {
+    loading.value = true
+    error.value = null
+
     const { data, error: err } = await supabase
       .from('runners')
-      .select('name, avatar, distance, elevation, activities, team')
+      .select('id, name, avatar, distance, elevation, activities, team')
 
     if (err) {
       error.value = err.message
@@ -27,13 +30,14 @@ export function useLeaderboard() {
       runners.value = (data ?? []) as Runner[]
     }
     loading.value = false
-  })
+  }
 
-  const rankedTeamA = computed<RankedRunner[]>(() => rankTeam(runners.value, 'A'))
-  const rankedTeamB = computed<RankedRunner[]>(() => rankTeam(runners.value, 'B'))
+  onMounted(fetchRunners)
 
-  const teamAScore    = computed(() => rankedTeamA.value.reduce((s, r) => s + r.score, 0))
-  const teamBScore    = computed(() => rankedTeamB.value.reduce((s, r) => s + r.score, 0))
+  const rankedTeamA  = computed<RankedRunner[]>(() => rankTeam(runners.value, 'A'))
+  const rankedTeamB  = computed<RankedRunner[]>(() => rankTeam(runners.value, 'B'))
+  const teamAScore   = computed(() => rankedTeamA.value.reduce((s, r) => s + r.score, 0))
+  const teamBScore   = computed(() => rankedTeamB.value.reduce((s, r) => s + r.score, 0))
   const totalRunners  = computed(() => runners.value.length)
   const totalDistance = computed(() => runners.value.reduce((s, r) => s + r.distance, 0))
   const totalElevation = computed(() => runners.value.reduce((s, r) => s + r.elevation, 0))
@@ -55,5 +59,7 @@ export function useLeaderboard() {
     totalDistance,
     totalElevation,
     leadingTeam,
+    allRunners: runners,
+    refresh: fetchRunners,
   }
 }

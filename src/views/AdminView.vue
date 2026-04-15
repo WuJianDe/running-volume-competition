@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Trash2, Plus, ArrowLeft, Eye, EyeOff } from 'lucide-vue-next'
+import { Trash2, Plus, ArrowLeft, Eye, EyeOff, Copy, Check } from 'lucide-vue-next'
 import { supabase } from '@/lib/supabase'
 import type { Runner } from '@/types/runner'
 
@@ -144,6 +144,19 @@ async function deleteRunner(id: string) {
 
 const teamName = (t: 'A' | 'B') => t === 'A' ? '紅隊' : '藍隊'
 const teamColor = (t: 'A' | 'B') => t === 'A' ? '#EC4899' : '#3B82F6'
+
+// ── 參賽者連結 ────────────────────────────────────────────────
+const copiedId = ref<string | null>(null)
+
+function connectUrl(runnerId: string) {
+  return `${window.location.origin}/?connect=${runnerId}`
+}
+
+async function copyLink(runnerId: string) {
+  await navigator.clipboard.writeText(connectUrl(runnerId))
+  copiedId.value = runnerId
+  setTimeout(() => { copiedId.value = null }, 2000)
+}
 </script>
 
 <template>
@@ -353,6 +366,39 @@ const teamColor = (t: 'A' | 'B') => t === 'A' ? '#EC4899' : '#3B82F6'
             </div>
 
             <p v-if="runners.length === 0" class="text-xs font-mono text-center py-8" style="color: #525252">
+              尚無跑者
+            </p>
+          </div>
+        </section>
+
+        <!-- 參賽者連結 -->
+        <section class="mb-8">
+          <h2 class="text-sm font-semibold mb-3" style="color: #A3A3A3">參賽者連結</h2>
+          <div class="flex flex-col gap-2">
+            <div
+              v-for="runner in runners"
+              :key="runner.id"
+              class="flex items-center gap-3 px-4 py-3 rounded-lg"
+              style="background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06)"
+            >
+              <span class="text-lg shrink-0">{{ runner.avatar }}</span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold" style="color: #E5E5E5">{{ runner.name }}</p>
+                <p class="text-xs font-mono truncate" style="color: #404040">{{ connectUrl(runner.id) }}</p>
+              </div>
+              <button
+                @click="copyLink(runner.id)"
+                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono shrink-0 transition-opacity hover:opacity-70"
+                :style="copiedId === runner.id
+                  ? 'background: rgba(74,222,128,.1); color: #4ADE80; border: 1px solid rgba(74,222,128,.2)'
+                  : 'background: rgba(245,158,11,.1); color: #FBBF24; border: 1px solid rgba(245,158,11,.2)'"
+              >
+                <Check v-if="copiedId === runner.id" :size="12" />
+                <Copy v-else :size="12" />
+                {{ copiedId === runner.id ? '已複製' : '複製' }}
+              </button>
+            </div>
+            <p v-if="runners.length === 0" class="text-xs font-mono text-center py-6" style="color: #525252">
               尚無跑者
             </p>
           </div>

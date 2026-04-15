@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Link } from 'lucide-vue-next'
 import { useLeaderboard } from '@/composables/useLeaderboard'
 import HeroSection from '@/components/HeroSection.vue'
 import StatsSummary from '@/components/StatsSummary.vue'
@@ -19,7 +18,6 @@ const {
   totalDistance,
   totalElevation,
   leadingTeam,
-  allRunners,
   refresh,
 } = useLeaderboard()
 
@@ -38,16 +36,6 @@ const connectRunner = computed(() =>
     : null
 )
 
-// ── 管理員連結區塊 ────────────────────────────────────────────
-const showAdminLinks = ref(false)
-
-function connectUrl(runnerId: string) {
-  return `${window.location.origin}/?connect=${runnerId}`
-}
-
-async function copyLink(runnerId: string) {
-  await navigator.clipboard.writeText(connectUrl(runnerId))
-}
 </script>
 
 <template>
@@ -143,44 +131,6 @@ async function copyLink(runnerId: string) {
             :teamScore="teamBScore"
             :fadeDelay="6"
           />
-        </div>
-      </section>
-
-      <!-- 管理員：產生個人連結 -->
-      <section class="max-w-5xl mx-auto px-5 pb-12">
-        <button
-          @click="showAdminLinks = !showAdminLinks"
-          class="flex items-center gap-2 text-xs font-mono mx-auto transition-opacity hover:opacity-60"
-          style="color: #333"
-        >
-          <Link :size="12" />
-          {{ showAdminLinks ? '隱藏' : '顯示' }}參賽者連結
-        </button>
-
-        <div v-if="showAdminLinks" class="mt-4 flex flex-col gap-2">
-          <div
-            v-for="runner in allRunners"
-            :key="runner.id"
-            class="flex items-center justify-between gap-3 px-4 py-3 rounded-lg"
-            style="background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06)"
-          >
-            <div class="flex items-center gap-2 min-w-0">
-              <span>{{ runner.avatar }}</span>
-              <span class="text-sm" style="color: #A3A3A3">{{ runner.name }}</span>
-            </div>
-            <div class="flex items-center gap-2 shrink-0">
-              <span class="text-xs font-mono truncate max-w-48 hidden md:block" style="color: #333">
-                {{ connectUrl(runner.id) }}
-              </span>
-              <button
-                @click="copyLink(runner.id)"
-                class="text-xs font-mono px-3 py-1 rounded transition-opacity hover:opacity-70"
-                style="background: rgba(245,158,11,.1); color: #FBBF24; border: 1px solid rgba(245,158,11,.2)"
-              >
-                複製
-              </button>
-            </div>
-          </div>
         </div>
       </section>
 

@@ -41,6 +41,7 @@ interface ActivityRow {
 
 const items   = ref<FeedItem[]>([])
 const loading = ref(true)
+const error = ref('')
 
 function timeAgo(iso: string) {
   const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
@@ -52,27 +53,33 @@ function timeAgo(iso: string) {
 const teamColor = (t: 'A' | 'B') => t === 'A' ? '#EC4899' : '#3B82F6'
 
 onMounted(async () => {
-  const { data } = await supabase
+  const { data, error: fetchError } = await supabase
     .from('activities')
     .select('id, name, distance, elevation, start_date, runners(id, name, avatar, team)')
     .order('start_date', { ascending: false })
     .limit(5)
 
-  items.value = ((data ?? []) as ActivityRow[])
-    .map((item) => {
-      const runner = Array.isArray(item.runners) ? item.runners[0] : item.runners
-      if (!runner) return null
+  if (fetchError) {
+    error.value = fetchError.code === 'PGRST205'
+      ? '活動資料表尚未建立，請先執行 Supabase migration'
+      : `最近活動載入失敗：${fetchError.message}`
+  } else {
+    items.value = ((data ?? []) as ActivityRow[])
+      .map((item) => {
+        const runner = Array.isArray(item.runners) ? item.runners[0] : item.runners
+        if (!runner) return null
 
-      return {
-        id: item.id,
-        name: item.name,
-        distance: item.distance,
-        elevation: item.elevation,
-        start_date: item.start_date,
-        runner,
-      }
-    })
-    .filter((item): item is FeedItem => item !== null)
+        return {
+          id: item.id,
+          name: item.name,
+          distance: item.distance,
+          elevation: item.elevation,
+          start_date: item.start_date,
+          runner,
+        }
+      })
+      .filter((item): item is FeedItem => item !== null)
+  }
 
   loading.value = false
 })
@@ -84,6 +91,10 @@ onMounted(async () => {
 
     <div v-if="loading" class="text-xs font-mono text-center py-6 animate-pulse" style="color: #9CA3AF">
       載入中...
+    </div>
+
+    <div v-else-if="error" class="text-xs font-mono text-center py-6" style="color: #EF4444">
+      {{ error }}
     </div>
 
     <div v-else-if="items.length === 0" class="text-xs font-mono text-center py-6" style="color: #D1D5DB">

@@ -20,7 +20,6 @@ const badgeStyle = computed(() => {
 })
 
 const nameColor = computed(() => (props.runner.rank === 1 ? props.teamColor : '#111827'))
-const unsynced = computed(() => props.runner.synced_at === null)
 </script>
 
 <template>
@@ -43,22 +42,22 @@ const unsynced = computed(() => props.runner.synced_at === null)
 
     <!-- 距離 (km) — 桌機才顯示 -->
     <div class="col-desktop text-right font-mono text-xs" style="color: #6B7280">
-      {{ unsynced ? '—' : formatKm(runner.distance) }}
+      {{ formatKm(runner.distance) }}
     </div>
 
     <!-- 爬升 (m) — 桌機才顯示 -->
     <div class="col-desktop text-right font-mono text-xs" style="color: #6B7280">
-      {{ unsynced ? '—' : formatNum(runner.elevation) }}
+      {{ formatNum(runner.elevation) }}
     </div>
 
     <!-- 總分 -->
-    <div class="text-right font-mono text-xs font-bold" :style="{ color: unsynced ? '#9CA3AF' : nameColor }">
-      {{ unsynced ? '—' : formatNum(runner.score) }}
+    <div class="text-right font-mono text-xs font-bold" :style="{ color: nameColor }">
+      {{ formatNum(runner.score) }}
     </div>
 
     <!-- 活動數量 -->
     <div class="text-right font-mono text-xs" style="color: #6B7280">
-      {{ unsynced ? '—' : runner.activities }}
+      {{ runner.activities }}
     </div>
   </div>
 </template>

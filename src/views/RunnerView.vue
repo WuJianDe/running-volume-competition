@@ -32,6 +32,7 @@ const runner     = ref<Runner | null>(null)
 const activities = ref<Activity[]>([])
 const loading    = ref(true)
 const seasonStart = ref('')
+const activitiesError = ref('')
 
 const teamColor = computed(() => runner.value?.team === 'A' ? '#EC4899' : '#3B82F6')
 const teamName  = computed(() => runner.value?.team === 'A' ? '紅隊' : '藍隊')
@@ -87,6 +88,11 @@ onMounted(async () => {
 
   if (runnerRes.data) runner.value = runnerRes.data as Runner
   if (activitiesRes.data) activities.value = activitiesRes.data as Activity[]
+  if (activitiesRes.error) {
+    activitiesError.value = activitiesRes.error.code === 'PGRST205'
+      ? '活動資料表尚未建立，請先執行 Supabase migration'
+      : `活動資料載入失敗：${activitiesRes.error.message}`
+  }
   if (seasonRes.ok) {
     const s = await seasonRes.json()
     seasonStart.value = s.season_start
@@ -187,7 +193,11 @@ onMounted(async () => {
             本季活動（{{ activities.length }} 筆）
           </h2>
 
-          <div v-if="activities.length === 0" class="text-center py-10 text-sm" style="color: #9CA3AF">
+          <div v-if="activitiesError" class="text-center py-10 text-sm" style="color: #EF4444">
+            {{ activitiesError }}
+          </div>
+
+          <div v-else-if="activities.length === 0" class="text-center py-10 text-sm" style="color: #9CA3AF">
             {{ runner.synced_at ? '本季尚無跑步記錄' : '尚未同步 Strava 資料' }}
           </div>
 

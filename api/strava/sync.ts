@@ -126,6 +126,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .update({ distance, elevation, activities: activityCount, synced_at: new Date().toISOString() })
         .eq('id', token.runner_id)
 
+      const runIds = runs.map((a) => a.id)
+
+      if (runIds.length === 0) {
+        await supabase
+          .from('activities')
+          .delete()
+          .eq('runner_id', token.runner_id)
+      } else {
+        await supabase
+          .from('activities')
+          .delete()
+          .eq('runner_id', token.runner_id)
+          .not('id', 'in', `(${runIds.join(',')})`)
+      }
+
       // 儲存每筆活動明細
       if (runs.length > 0) {
         await supabase.from('activities').upsert(

@@ -1,3 +1,16 @@
+<script setup lang="ts">
+const props = defineProps<{
+  seasonStart: string  // "2026-04-01"
+  seasonEnd: string    // "2026-04-30"
+}>()
+
+function formatDate(d: string) {
+  if (!d) return ''
+  const [y, m, day] = d.split('-')
+  return `${y}/${m}/${day}`
+}
+</script>
+
 <template>
   <header
     class="relative w-full overflow-hidden"
@@ -26,6 +39,17 @@
       >
         每季結算 · 用雙腳征服每一公里
       </p>
+
+      <!-- 賽季區間 -->
+      <div v-if="props.seasonStart" class="mt-4 fade-up fade-up-3">
+        <span
+          class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono tracking-widest"
+          style="background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.15); color: #FBBF24"
+        >
+          <span style="color: #FC4C02; font-size: 8px">●</span>
+          {{ formatDate(props.seasonStart) }} – {{ formatDate(props.seasonEnd) }}
+        </span>
+      </div>
     </div>
   </header>
 </template>

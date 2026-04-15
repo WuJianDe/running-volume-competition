@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useLeaderboard } from '@/composables/useLeaderboard'
 import HeroSection from '@/components/HeroSection.vue'
 import StatsSummary from '@/components/StatsSummary.vue'
@@ -20,6 +20,19 @@ const {
   leadingTeam,
   refresh,
 } = useLeaderboard()
+
+// ── 賽季區間 ──────────────────────────────────────────────────
+const seasonStart = ref('')
+const seasonEnd = ref('')
+
+onMounted(async () => {
+  const res = await fetch('/api/admin/season')
+  if (res.ok) {
+    const data = await res.json()
+    seasonStart.value = data.season_start
+    seasonEnd.value = data.season_end
+  }
+})
 
 // ── URL 參數 ──────────────────────────────────────────────────
 const searchParams = new URLSearchParams(window.location.search)
@@ -59,7 +72,7 @@ const connectRunner = computed(() =>
 
     <!-- 主內容 -->
     <template v-else>
-      <HeroSection />
+      <HeroSection :seasonStart="seasonStart" :seasonEnd="seasonEnd" />
 
       <!-- 連結成功通知 -->
       <div v-if="justConnected" class="max-w-5xl mx-auto px-5 mb-4 fade-up">

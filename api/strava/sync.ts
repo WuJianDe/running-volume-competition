@@ -6,9 +6,20 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 )
 
-// 賽季區間：2026/04/01 ~ 2026/04/30
-const SEASON_START = Math.floor(new Date('2026-04-01T00:00:00Z').getTime() / 1000)
-const SEASON_END   = Math.floor(new Date('2026-05-01T00:00:00Z').getTime() / 1000)
+async function getSeasonRange(): Promise<{ start: number; end: number }> {
+  const { data } = await supabase
+    .from('settings')
+    .select('season_start, season_end')
+    .single()
+
+  const start = data?.season_start ?? '2026-04-01'
+  const end   = data?.season_end   ?? '2026-04-30'
+
+  return {
+    start: Math.floor(new Date(start + 'T00:00:00Z').getTime() / 1000),
+    end:   Math.floor(new Date(end   + 'T23:59:59Z').getTime() / 1000),
+  }
+}
 
 async function getValidAccessToken(token: Record<string, any>): Promise<string> {
   const now = Math.floor(Date.now() / 1000)
@@ -41,13 +52,13 @@ async function getValidAccessToken(token: Record<string, any>): Promise<string> 
   return refreshed.access_token
 }
 
-async function fetchAllActivities(accessToken: string): Promise<any[]> {
+async function fetchAllActivities(accessToken: string, seasonStart: number, seasonEnd: number): Promise<any[]> {
   const all: any[] = []
   let page = 1
 
   while (true) {
     const res = await fetch(
-      `https://www.strava.com/api/v3/athlete/activities?after=${SEASON_START}&before=${SEASON_END}&per_page=200&page=${page}`,
+      `https://www.strava.com/api/v3/athlete/activities?after=${seasonStart}&before=${seasonEnd}&per_page=200&page=${page}`,
       { headers: { Authorization: `Bearer ${accessToken}` } },
     )
     const batch = await res.json()
@@ -77,12 +88,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.json({ synced: 0, message: '尚未有跑者連結 Strava' })
   }
 
+  const season = await getSeasonRange()
   const results = []
 
   for (const token of tokens) {
     try {
       const accessToken = await getValidAccessToken(token)
-      const activities = await fetchAllActivities(accessToken)
+      const activities = await fetchAllActivities(accessToken, season.start, season.end)
 
       // 只計算跑步活動
       const runs = activities.filter(

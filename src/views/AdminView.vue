@@ -19,6 +19,7 @@ function login() {
   authenticated.value = true
   authError.value = ''
   loadRunners()
+  loadSeason()
 }
 
 // ── 跑者列表 ─────────────────────────────────────────────────
@@ -35,7 +36,12 @@ async function loadRunners() {
   loadingRunners.value = false
 }
 
-onMounted(() => { if (authenticated.value) loadRunners() })
+onMounted(() => {
+  if (authenticated.value) {
+    loadRunners()
+    loadSeason()
+  }
+})
 
 // ── 新增跑者 ─────────────────────────────────────────────────
 const form = ref({ name: '', avatar: '🏃', team: 'A' as 'A' | 'B' })
@@ -66,6 +72,45 @@ async function addRunner() {
     await loadRunners()
   }
   adding.value = false
+}
+
+// ── 賽季設定 ─────────────────────────────────────────────────
+const season = ref({ season_start: '', season_end: '' })
+const seasonSaving = ref(false)
+const seasonError = ref('')
+const seasonSuccess = ref(false)
+
+async function loadSeason() {
+  const res = await fetch('/api/admin/season')
+  if (res.ok) {
+    const data = await res.json()
+    season.value = { season_start: data.season_start, season_end: data.season_end }
+  }
+}
+
+async function saveSeason() {
+  seasonSaving.value = true
+  seasonError.value = ''
+  seasonSuccess.value = false
+
+  const res = await fetch('/api/admin/season', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-admin-secret': secret.value,
+    },
+    body: JSON.stringify(season.value),
+  })
+
+  const data = await res.json()
+  if (res.ok) {
+    seasonSuccess.value = true
+    setTimeout(() => { seasonSuccess.value = false }, 3000)
+  } else {
+    seasonError.value = data.error ?? '儲存失敗'
+    if (res.status === 401) authenticated.value = false
+  }
+  seasonSaving.value = false
 }
 
 // ── 刪除跑者 ─────────────────────────────────────────────────
@@ -159,6 +204,50 @@ const teamColor = (t: 'A' | 'B') => t === 'A' ? '#EC4899' : '#3B82F6'
 
       <!-- ── 主內容 ── -->
       <template v-else>
+
+        <!-- 賽季設定 -->
+        <section class="mb-8">
+          <h2 class="text-sm font-semibold mb-3" style="color: #A3A3A3">賽季區間</h2>
+          <div
+            class="rounded-xl p-5 flex flex-col gap-3"
+            style="background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08)"
+          >
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs font-mono mb-1 block" style="color: #525252">開始日期</label>
+                <input
+                  v-model="season.season_start"
+                  type="date"
+                  class="w-full rounded-lg px-3 py-2 text-sm outline-none"
+                  style="background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #E5E5E5; color-scheme: dark"
+                />
+              </div>
+              <div>
+                <label class="text-xs font-mono mb-1 block" style="color: #525252">結束日期</label>
+                <input
+                  v-model="season.season_end"
+                  type="date"
+                  class="w-full rounded-lg px-3 py-2 text-sm outline-none"
+                  style="background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #E5E5E5; color-scheme: dark"
+                />
+              </div>
+            </div>
+
+            <p v-if="seasonError" class="text-xs font-mono" style="color: #EF4444">{{ seasonError }}</p>
+            <p v-if="seasonSuccess" class="text-xs font-mono" style="color: #4ADE80">已儲存賽季設定</p>
+
+            <button
+              @click="saveSeason"
+              :disabled="seasonSaving || !season.season_start || !season.season_end"
+              class="w-full py-2.5 rounded-lg text-sm font-semibold transition-opacity"
+              :style="seasonSaving || !season.season_start || !season.season_end
+                ? 'background: rgba(255,255,255,.05); color: #525252; cursor: not-allowed; opacity: .5'
+                : 'background: rgba(74,222,128,.1); color: #4ADE80; border: 1px solid rgba(74,222,128,.2); cursor: pointer'"
+            >
+              {{ seasonSaving ? '儲存中...' : '儲存賽季設定' }}
+            </button>
+          </div>
+        </section>
 
         <!-- 新增跑者 -->
         <section class="mb-8">

@@ -74,7 +74,7 @@ async function copyLink(runnerId: string) {
       <HeroSection />
 
       <!-- 同步按鈕 -->
-      <div class="flex justify-center mt-2 mb-2 fade-up fade-up-2">
+      <div class="flex justify-center -mt-4 mb-6 fade-up fade-up-2">
         <SyncButton @synced="refresh" />
       </div>
 

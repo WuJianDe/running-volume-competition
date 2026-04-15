@@ -56,7 +56,7 @@ onMounted(async () => {
     .from('activities')
     .select('id, name, distance, elevation, start_date, runners(id, name, avatar, team)')
     .order('start_date', { ascending: false })
-    .limit(15)
+    .limit(5)
 
   items.value = ((data ?? []) as ActivityRow[])
     .map((item) => {

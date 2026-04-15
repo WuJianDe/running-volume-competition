@@ -68,7 +68,7 @@ const connectRunner = computed(() =>
           style="background: rgba(74,222,128,.06); border: 1px solid rgba(74,222,128,.2)"
         >
           <p class="text-xs font-mono" style="color: #4ADE80">
-            ✓ Strava 已成功連結！點擊左下角「更新」按鈕同步成績
+            ✓ Strava 已成功連結！點擊右下角「更新數據」按鈕同步成績
           </p>
           <button @click="justConnected = false" class="text-xs font-mono shrink-0" style="color: #525252">✕</button>
         </div>

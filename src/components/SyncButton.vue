@@ -27,8 +27,8 @@ async function sync() {
 </script>
 
 <template>
-  <!-- 左下角浮動 -->
-  <div class="fixed bottom-6 left-6 z-50 flex flex-col items-start gap-2">
+  <!-- 右下角浮動 -->
+  <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
 
     <!-- 狀態訊息 -->
     <Transition name="fade-msg">
@@ -54,7 +54,7 @@ async function sync() {
         : 'background: #1F1A0E; color: #FBBF24; border: 1px solid #3D2E0A; cursor: pointer'"
     >
       <RefreshCw :size="14" :class="syncing ? 'animate-spin' : ''" class="shrink-0" />
-      {{ syncing ? '更新中...' : '更新' }}
+      {{ syncing ? '更新中...' : '更新數據' }}
     </button>
 
   </div>

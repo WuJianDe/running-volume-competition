@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
 import type { RankedRunner } from '@/types/runner'
 import { formatKm, formatNum } from '@/utils/format'
 
@@ -33,9 +34,11 @@ const unsynced = computed(() => props.runner.synced_at === null)
     <!-- 跑者名稱 -->
     <div class="flex items-center gap-2 min-w-0">
       <span class="text-lg shrink-0">{{ runner.avatar }}</span>
-      <span class="font-semibold text-xs md:text-sm truncate" :style="{ color: nameColor }">
-        {{ runner.name }}
-      </span>
+      <RouterLink
+        :to="`/runner/${runner.id}`"
+        class="font-semibold text-xs md:text-sm truncate hover:underline underline-offset-2"
+        :style="{ color: nameColor }"
+      >{{ runner.name }}</RouterLink>
     </div>
 
     <!-- 距離 (km) — 桌機才顯示 -->

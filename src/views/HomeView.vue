@@ -6,6 +6,7 @@ import StatsSummary from '@/components/StatsSummary.vue'
 import ScoringRule from '@/components/ScoringRule.vue'
 import TeamBoard from '@/components/TeamBoard.vue'
 import SyncButton from '@/components/SyncButton.vue'
+import ActivityFeed from '@/components/ActivityFeed.vue'
 
 const {
   loading,
@@ -142,6 +143,9 @@ const connectRunner = computed(() =>
           />
         </div>
       </section>
+
+      <!-- 活動 Feed -->
+      <ActivityFeed />
 
       <footer class="text-center pb-10 fade-up fade-up-8">
         <p class="text-xs font-mono" style="color: #D1D5DB">RUNNING LEAGUE © 2025</p>

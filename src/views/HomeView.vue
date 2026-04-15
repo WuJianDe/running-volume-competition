@@ -61,11 +61,6 @@ const connectRunner = computed(() =>
     <template v-else>
       <HeroSection />
 
-      <!-- 同步按鈕 -->
-      <div class="flex justify-center -mt-4 mb-6 fade-up fade-up-2">
-        <SyncButton @synced="refresh" />
-      </div>
-
       <!-- 連結成功通知 -->
       <div v-if="justConnected" class="max-w-5xl mx-auto px-5 mb-4 fade-up">
         <div
@@ -73,7 +68,7 @@ const connectRunner = computed(() =>
           style="background: rgba(74,222,128,.06); border: 1px solid rgba(74,222,128,.2)"
         >
           <p class="text-xs font-mono" style="color: #4ADE80">
-            ✓ Strava 已成功連結！點擊「同步 Strava 資料」更新成績
+            ✓ Strava 已成功連結！點擊左下角「更新」按鈕同步成績
           </p>
           <button @click="justConnected = false" class="text-xs font-mono shrink-0" style="color: #525252">✕</button>
         </div>
@@ -138,5 +133,8 @@ const connectRunner = computed(() =>
         <p class="text-xs font-mono" style="color: #333">RUNNING LEAGUE © 2025</p>
       </footer>
     </template>
+
+    <!-- 浮動更新按鈕 -->
+    <SyncButton @synced="refresh" />
   </div>
 </template>

@@ -89,14 +89,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const season = await getSeasonRange()
-  const results = []
 
-  for (const token of tokens) {
-    try {
+  const settled = await Promise.allSettled(
+    tokens.map(async (token) => {
       const accessToken = await getValidAccessToken(token)
       const activities = await fetchAllActivities(accessToken, season.start, season.end)
 
-      // 只計算跑步活動
       const runs = activities.filter(
         (a) => a.sport_type === 'Run' || a.type === 'Run',
       )
@@ -107,14 +105,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       await supabase
         .from('runners')
-        .update({ distance, elevation, activities: activityCount })
+        .update({ distance, elevation, activities: activityCount, synced_at: new Date().toISOString() })
         .eq('id', token.runner_id)
 
-      results.push({ runner_id: token.runner_id, success: true, runs: activityCount })
-    } catch (e) {
-      results.push({ runner_id: token.runner_id, success: false, error: String(e) })
-    }
-  }
+      return { runner_id: token.runner_id, success: true, runs: activityCount }
+    }),
+  )
 
-  res.json({ synced: results.length, results })
+  const results = settled.map((r, i) =>
+    r.status === 'fulfilled'
+      ? r.value
+      : { runner_id: tokens[i].runner_id, success: false, error: String((r as PromiseRejectedResult).reason) },
+  )
+
+  res.json({ synced: results.filter(r => r.success).length, results })
 }

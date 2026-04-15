@@ -18,6 +18,7 @@ const {
   totalDistance,
   totalElevation,
   leadingTeam,
+  lastSyncedAt,
   refresh,
 } = useLeaderboard()
 
@@ -148,6 +149,6 @@ const connectRunner = computed(() =>
     </template>
 
     <!-- 浮動更新按鈕 -->
-    <SyncButton @synced="refresh" />
+    <SyncButton :lastSyncedAt="lastSyncedAt" @synced="refresh" />
   </div>
 </template>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 const props = defineProps<{
   seasonStart: string
   seasonEnd: string
@@ -9,6 +11,18 @@ function formatDate(d: string) {
   const [y, m, day] = d.split('-')
   return `${y}/${m}/${day}`
 }
+
+const seasonProgress = computed(() => {
+  if (!props.seasonStart || !props.seasonEnd) return null
+  const start = new Date(props.seasonStart + 'T00:00:00Z').getTime()
+  const end   = new Date(props.seasonEnd   + 'T23:59:59Z').getTime()
+  const now   = Date.now()
+  if (now <= start) return { pct: 0, day: 0, total: Math.ceil((end - start) / 86400000) }
+  if (now >= end)   return { pct: 100, day: Math.ceil((end - start) / 86400000), total: Math.ceil((end - start) / 86400000) }
+  const day   = Math.ceil((now - start) / 86400000)
+  const total = Math.ceil((end - start) / 86400000)
+  return { pct: Math.round((now - start) / (end - start) * 100), day, total }
+})
 </script>
 
 <template>
@@ -37,8 +51,8 @@ function formatDate(d: string) {
         每季結算 · 用雙腳征服每一公里
       </p>
 
-      <!-- 賽季區間 -->
-      <div v-if="props.seasonStart" class="mt-4 fade-up fade-up-3">
+      <!-- 賽季區間 + 進度 -->
+      <div v-if="props.seasonStart" class="mt-4 fade-up fade-up-3 flex flex-col items-center gap-2">
         <span
           class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono tracking-widest"
           style="background: #FFF7ED; border: 1px solid #FDBA74; color: #EA580C"
@@ -46,6 +60,22 @@ function formatDate(d: string) {
           <span style="color: #FC4C02; font-size: 8px">●</span>
           {{ formatDate(props.seasonStart) }} – {{ formatDate(props.seasonEnd) }}
         </span>
+
+        <!-- 進度條 -->
+        <div v-if="seasonProgress" class="w-48 flex flex-col items-center gap-1">
+          <div class="w-full h-1.5 rounded-full overflow-hidden" style="background: #E5E7EB">
+            <div
+              class="h-full rounded-full transition-all duration-700"
+              style="background: linear-gradient(90deg, #F97316, #FB923C)"
+              :style="{ width: seasonProgress.pct + '%' }"
+            ></div>
+          </div>
+          <p class="text-xs font-mono" style="color: #9CA3AF">
+            <template v-if="seasonProgress.pct === 0">賽季尚未開始</template>
+            <template v-else-if="seasonProgress.pct === 100">賽季已結束</template>
+            <template v-else>第 {{ seasonProgress.day }} 天 / 共 {{ seasonProgress.total }} 天</template>
+          </p>
+        </div>
       </div>
     </div>
   </header>

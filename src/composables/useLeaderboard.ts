@@ -22,7 +22,7 @@ export function useLeaderboard() {
 
     const { data, error: err } = await supabase
       .from('runners')
-      .select('id, name, avatar, distance, elevation, activities, team')
+      .select('id, name, avatar, distance, elevation, activities, team, synced_at')
 
     if (err) {
       error.value = err.message
@@ -48,6 +48,14 @@ export function useLeaderboard() {
     return '平手'
   })
 
+  const lastSyncedAt = computed<string | null>(() => {
+    const times = runners.value
+      .map(r => r.synced_at)
+      .filter((t): t is string => !!t)
+    if (times.length === 0) return null
+    return times.sort().at(-1) ?? null
+  })
+
   return {
     loading,
     error,
@@ -60,6 +68,7 @@ export function useLeaderboard() {
     totalElevation,
     leadingTeam,
     allRunners: runners,
+    lastSyncedAt,
     refresh: fetchRunners,
   }
 }

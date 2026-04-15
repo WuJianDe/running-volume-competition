@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Trash2, Plus, ArrowLeft, Eye, EyeOff, Copy, Check } from 'lucide-vue-next'
+import { Trash2, Plus, ArrowLeft, Eye, EyeOff, Copy, Check, Pencil, X } from 'lucide-vue-next'
 import { supabase } from '@/lib/supabase'
 import type { Runner } from '@/types/runner'
 
@@ -111,6 +111,45 @@ async function saveSeason() {
     if (res.status === 401) authenticated.value = false
   }
   seasonSaving.value = false
+}
+
+// ── 編輯跑者 ─────────────────────────────────────────────────
+const editingId = ref<string | null>(null)
+const editForm = ref({ name: '', avatar: '', team: 'A' as 'A' | 'B' })
+const editSaving = ref(false)
+const editError = ref('')
+
+function startEdit(runner: Runner) {
+  editingId.value = runner.id
+  editForm.value = { name: runner.name, avatar: runner.avatar, team: runner.team }
+  editError.value = ''
+}
+
+function cancelEdit() {
+  editingId.value = null
+  editError.value = ''
+}
+
+async function saveEdit() {
+  editSaving.value = true
+  editError.value = ''
+
+  const res = await fetch('/api/admin/update-runner', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-secret': secret.value },
+    body: JSON.stringify({ id: editingId.value, ...editForm.value }),
+  })
+
+  const data = await res.json()
+  if (res.ok) {
+    const idx = runners.value.findIndex(r => r.id === editingId.value)
+    if (idx !== -1) runners.value[idx] = { ...runners.value[idx], ...editForm.value }
+    editingId.value = null
+  } else {
+    editError.value = data.error ?? '儲存失敗'
+    if (res.status === 401) authenticated.value = false
+  }
+  editSaving.value = false
 }
 
 // ── 刪除跑者 ─────────────────────────────────────────────────
@@ -333,29 +372,89 @@ async function copyLink(runnerId: string) {
           </div>
 
           <div v-else class="flex flex-col gap-2">
-            <div
-              v-for="runner in runners"
-              :key="runner.id"
-              class="flex items-center gap-3 px-4 py-3 rounded-lg"
-              style="background: #FFFFFF; border: 1px solid #E5E7EB"
-            >
-              <span class="text-lg">{{ runner.avatar }}</span>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold" style="color: #111827">{{ runner.name }}</p>
-                <p class="text-xs font-mono" :style="{ color: teamColor(runner.team) }">
-                  {{ teamName(runner.team) }}
-                </p>
-              </div>
-              <button
-                @click="deleteRunner(runner.id)"
-                :disabled="deletingId === runner.id"
-                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono transition-opacity hover:opacity-70"
-                style="background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA"
+            <template v-for="runner in runners" :key="runner.id">
+              <!-- 一般檢視列 -->
+              <div
+                v-if="editingId !== runner.id"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg"
+                style="background: #FFFFFF; border: 1px solid #E5E7EB"
               >
-                <Trash2 :size="12" />
-                {{ deletingId === runner.id ? '刪除中' : '刪除' }}
-              </button>
-            </div>
+                <span class="text-lg">{{ runner.avatar }}</span>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-semibold" style="color: #111827">{{ runner.name }}</p>
+                  <p class="text-xs font-mono" :style="{ color: teamColor(runner.team) }">
+                    {{ teamName(runner.team) }}
+                  </p>
+                </div>
+                <button
+                  @click="startEdit(runner)"
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono transition-opacity hover:opacity-70"
+                  style="background: #F9FAFB; color: #6B7280; border: 1px solid #E5E7EB"
+                >
+                  <Pencil :size="12" /> 編輯
+                </button>
+                <button
+                  @click="deleteRunner(runner.id)"
+                  :disabled="deletingId === runner.id"
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono transition-opacity hover:opacity-70"
+                  style="background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA"
+                >
+                  <Trash2 :size="12" />
+                  {{ deletingId === runner.id ? '刪除中' : '刪除' }}
+                </button>
+              </div>
+
+              <!-- 編輯列 -->
+              <div
+                v-else
+                class="flex flex-col gap-3 px-4 py-3 rounded-lg"
+                style="background: #FAFAFA; border: 1px solid #FDBA74"
+              >
+                <div class="grid grid-cols-2 gap-2">
+                  <input
+                    v-model="editForm.name"
+                    placeholder="姓名"
+                    class="rounded-lg px-3 py-1.5 text-sm outline-none"
+                    style="background: #FFFFFF; border: 1px solid #E5E7EB; color: #111827"
+                  />
+                  <input
+                    v-model="editForm.avatar"
+                    placeholder="頭像"
+                    class="rounded-lg px-3 py-1.5 text-sm outline-none"
+                    style="background: #FFFFFF; border: 1px solid #E5E7EB; color: #111827"
+                  />
+                </div>
+                <div class="flex gap-2">
+                  <label
+                    v-for="t in (['A', 'B'] as const)" :key="t"
+                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg cursor-pointer text-xs font-semibold transition-all"
+                    :style="editForm.team === t
+                      ? `background: ${teamColor(t)}18; border: 1px solid ${teamColor(t)}55; color: ${teamColor(t)}`
+                      : 'background: #F9FAFB; border: 1px solid #E5E7EB; color: #9CA3AF'"
+                  >
+                    <input v-model="editForm.team" type="radio" :value="t" class="hidden" />
+                    {{ teamName(t) }}
+                  </label>
+                  <div class="flex-1"></div>
+                  <p v-if="editError" class="text-xs font-mono self-center" style="color: #DC2626">{{ editError }}</p>
+                  <button
+                    @click="cancelEdit"
+                    class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-mono transition-opacity hover:opacity-70"
+                    style="background: #F9FAFB; color: #6B7280; border: 1px solid #E5E7EB"
+                  >
+                    <X :size="12" /> 取消
+                  </button>
+                  <button
+                    @click="saveEdit"
+                    :disabled="editSaving"
+                    class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-mono transition-opacity hover:opacity-70"
+                    style="background: #FFF7ED; color: #EA580C; border: 1px solid #FDBA74"
+                  >
+                    {{ editSaving ? '儲存中' : '儲存' }}
+                  </button>
+                </div>
+              </div>
+            </template>
 
             <p v-if="runners.length === 0" class="text-xs font-mono text-center py-8" style="color: #9CA3AF">
               尚無跑者

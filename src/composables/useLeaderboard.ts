@@ -19,7 +19,7 @@ export function useLeaderboard() {
   onMounted(async () => {
     const { data, error: err } = await supabase
       .from('runners')
-      .select('name, avatar, distance, elevation, team')
+      .select('name, avatar, distance, elevation, activities, team')
 
     if (err) {
       error.value = err.message

@@ -23,11 +23,14 @@ defineProps<{
     <!-- 欄位標頭 -->
     <div
       class="grid items-center mb-2 px-3 text-xs font-mono tracking-wider"
-      style="color: #525252; grid-template-columns: 40px 1fr 80px"
+      style="color: #525252; grid-template-columns: 40px 1fr repeat(4, 68px)"
     >
       <span>#</span>
       <span>跑者</span>
-      <span class="text-right">分數</span>
+      <span class="text-right">距離</span>
+      <span class="text-right">爬升</span>
+      <span class="text-right">總分</span>
+      <span class="text-right">活動</span>
     </div>
 
     <!-- 跑者列表 -->
@@ -44,15 +47,18 @@ defineProps<{
       <div
         class="grid items-center rounded-lg px-2.5 py-3 mt-1"
         style="
-          grid-template-columns: 40px 1fr 80px;
+          grid-template-columns: 40px 1fr repeat(4, 68px);
           border-top: 1px solid rgba(255,255,255,.08);
         "
       >
         <div></div>
         <span class="text-xs font-mono tracking-wider" style="color: #525252">隊伍總分</span>
+        <div></div>
+        <div></div>
         <div class="text-right font-mono text-sm font-bold" :style="{ color: teamColor }">
           {{ formatNum(teamScore) }}
         </div>
+        <div></div>
       </div>
     </div>
   </div>

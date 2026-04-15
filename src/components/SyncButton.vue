@@ -36,8 +36,8 @@ async function sync() {
         v-if="message"
         class="px-3 py-1.5 rounded-lg text-xs font-mono"
         :style="message.ok
-          ? 'background: rgba(74,222,128,.1); color: #4ADE80; border: 1px solid rgba(74,222,128,.2)'
-          : 'background: rgba(239,68,68,.1); color: #EF4444; border: 1px solid rgba(239,68,68,.2)'"
+          ? 'background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0'
+          : 'background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA'"
       >
         {{ message.ok ? '✓' : '✕' }} {{ message.text }}
       </div>
@@ -48,10 +48,10 @@ async function sync() {
       @click="sync"
       :disabled="syncing"
       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 active:scale-95"
-      style="backdrop-filter: blur(12px); box-shadow: 0 4px 24px rgba(0,0,0,.4)"
+      style="box-shadow: 0 2px 12px rgba(0,0,0,.08)"
       :style="syncing
-        ? 'background: #1C1C1C; color: #525252; border: 1px solid #2A2A2A; cursor: not-allowed'
-        : 'background: #1F1A0E; color: #FBBF24; border: 1px solid #3D2E0A; cursor: pointer'"
+        ? 'background: #F3F4F6; color: #9CA3AF; border: 1px solid #E5E7EB; cursor: not-allowed'
+        : 'background: #FFF7ED; color: #EA580C; border: 1px solid #FDBA74; cursor: pointer'"
     >
       <RefreshCw :size="14" :class="syncing ? 'animate-spin' : ''" class="shrink-0" />
       {{ syncing ? '更新中...' : '更新數據' }}

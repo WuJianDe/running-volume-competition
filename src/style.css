@@ -7,6 +7,7 @@
   body {
     @apply h-full;
     margin: 0;
+    background: #F9FAFB;
   }
 }
 
@@ -14,11 +15,6 @@
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes countUp {
-  from { opacity: 0; }
-  to   { opacity: 1; }
 }
 
 @keyframes shimmer {
@@ -37,9 +33,9 @@
 .fade-up-7 { animation-delay: 0.45s; }
 .fade-up-8 { animation-delay: 0.50s; }
 
-/* ── Gold shimmer text ── */
+/* ── Orange shimmer text ── */
 .shimmer-gold {
-  background: linear-gradient(90deg, #F59E0B, #FBBF24, #F59E0B);
+  background: linear-gradient(90deg, #EA580C, #F97316, #FB923C, #F97316, #EA580C);
   background-size: 200% 100%;
   animation: shimmer 3s linear infinite;
   -webkit-background-clip: text;
@@ -48,32 +44,30 @@
 
 /* ── Rank badge base ── */
 .rank-badge {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'JetBrains Mono', monospace;
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 700;
+  font-size: 12px;
 }
 
 /* ── Runner row hover ── */
 .row-hover {
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 .row-hover:hover {
-  transform: translateX(4px);
-  background: rgba(255, 255, 255, 0.04);
+  transform: translateX(3px);
+  background: #F3F4F6 !important;
 }
 
 /* ── Stat pill ── */
 .stat-pill {
-  backdrop-filter: blur(12px);
+  transition: box-shadow 0.2s ease;
 }
-
-/* ── Top glow ── */
-.top-glow {
-  box-shadow: 0 0 40px rgba(245, 158, 11, 0.08);
+.stat-pill:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
 }

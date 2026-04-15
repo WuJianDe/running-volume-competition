@@ -162,7 +162,7 @@ async function copyLink(runnerId: string) {
 <template>
   <div
     class="min-h-full w-full overflow-auto"
-    style="background: #0A0A0A; color: #E5E5E5; font-family: 'Outfit', sans-serif"
+    style="background: #F9FAFB; color: #111827; font-family: 'Outfit', sans-serif"
   >
     <div class="max-w-2xl mx-auto px-5 py-10">
 
@@ -171,20 +171,17 @@ async function copyLink(runnerId: string) {
         <button
           @click="router.push('/')"
           class="flex items-center gap-1.5 text-xs font-mono transition-opacity hover:opacity-60"
-          style="color: #525252"
+          style="color: #9CA3AF"
         >
           <ArrowLeft :size="14" /> 返回排行榜
         </button>
-        <h1 class="text-lg font-bold ml-auto" style="color: #F5F5F5">管理後台</h1>
+        <h1 class="text-lg font-bold ml-auto" style="color: #111827">管理後台</h1>
       </div>
 
       <!-- ── 密碼驗證 ── -->
       <div v-if="!authenticated">
-        <div
-          class="rounded-xl p-6"
-          style="background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08)"
-        >
-          <p class="text-sm mb-4" style="color: #A3A3A3">請輸入管理員密碼</p>
+        <div class="rounded-xl p-6" style="background: #FFFFFF; border: 1px solid #E5E7EB">
+          <p class="text-sm mb-4" style="color: #6B7280">請輸入管理員密碼</p>
           <div class="flex gap-2">
             <div class="relative flex-1">
               <input
@@ -193,11 +190,12 @@ async function copyLink(runnerId: string) {
                 placeholder="Admin Secret"
                 @keyup.enter="login"
                 class="w-full rounded-lg px-3 py-2 text-sm font-mono outline-none"
-                style="background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #E5E5E5"
+                style="background: #F9FAFB; border: 1px solid #E5E7EB; color: #111827"
               />
               <button
                 @click="showSecret = !showSecret"
                 class="absolute right-2 top-1/2 -translate-y-1/2 opacity-40 hover:opacity-70"
+                style="color: #6B7280"
               >
                 <Eye v-if="!showSecret" :size="14" />
                 <EyeOff v-else :size="14" />
@@ -206,12 +204,12 @@ async function copyLink(runnerId: string) {
             <button
               @click="login"
               class="px-4 py-2 rounded-lg text-sm font-semibold"
-              style="background: rgba(245,158,11,.15); color: #FBBF24; border: 1px solid rgba(245,158,11,.2)"
+              style="background: #FFF7ED; color: #EA580C; border: 1px solid #FDBA74"
             >
               進入
             </button>
           </div>
-          <p v-if="authError" class="text-xs mt-2 font-mono" style="color: #EF4444">{{ authError }}</p>
+          <p v-if="authError" class="text-xs mt-2 font-mono" style="color: #DC2626">{{ authError }}</p>
         </div>
       </div>
 
@@ -220,42 +218,39 @@ async function copyLink(runnerId: string) {
 
         <!-- 賽季設定 -->
         <section class="mb-8">
-          <h2 class="text-sm font-semibold mb-3" style="color: #A3A3A3">賽季區間</h2>
-          <div
-            class="rounded-xl p-5 flex flex-col gap-3"
-            style="background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08)"
-          >
+          <h2 class="text-sm font-semibold mb-3" style="color: #6B7280">賽季區間</h2>
+          <div class="rounded-xl p-5 flex flex-col gap-3" style="background: #FFFFFF; border: 1px solid #E5E7EB">
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="text-xs font-mono mb-1 block" style="color: #525252">開始日期</label>
+                <label class="text-xs font-mono mb-1 block" style="color: #9CA3AF">開始日期</label>
                 <input
                   v-model="season.season_start"
                   type="date"
                   class="w-full rounded-lg px-3 py-2 text-sm outline-none"
-                  style="background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #E5E5E5; color-scheme: dark"
+                  style="background: #F9FAFB; border: 1px solid #E5E7EB; color: #111827"
                 />
               </div>
               <div>
-                <label class="text-xs font-mono mb-1 block" style="color: #525252">結束日期</label>
+                <label class="text-xs font-mono mb-1 block" style="color: #9CA3AF">結束日期</label>
                 <input
                   v-model="season.season_end"
                   type="date"
                   class="w-full rounded-lg px-3 py-2 text-sm outline-none"
-                  style="background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #E5E5E5; color-scheme: dark"
+                  style="background: #F9FAFB; border: 1px solid #E5E7EB; color: #111827"
                 />
               </div>
             </div>
 
-            <p v-if="seasonError" class="text-xs font-mono" style="color: #EF4444">{{ seasonError }}</p>
-            <p v-if="seasonSuccess" class="text-xs font-mono" style="color: #4ADE80">已儲存賽季設定</p>
+            <p v-if="seasonError" class="text-xs font-mono" style="color: #DC2626">{{ seasonError }}</p>
+            <p v-if="seasonSuccess" class="text-xs font-mono" style="color: #16A34A">已儲存賽季設定</p>
 
             <button
               @click="saveSeason"
               :disabled="seasonSaving || !season.season_start || !season.season_end"
               class="w-full py-2.5 rounded-lg text-sm font-semibold transition-opacity"
               :style="seasonSaving || !season.season_start || !season.season_end
-                ? 'background: rgba(255,255,255,.05); color: #525252; cursor: not-allowed; opacity: .5'
-                : 'background: rgba(74,222,128,.1); color: #4ADE80; border: 1px solid rgba(74,222,128,.2); cursor: pointer'"
+                ? 'background: #F3F4F6; color: #9CA3AF; cursor: not-allowed; opacity: .6'
+                : 'background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0; cursor: pointer'"
             >
               {{ seasonSaving ? '儲存中...' : '儲存賽季設定' }}
             </button>
@@ -264,62 +259,59 @@ async function copyLink(runnerId: string) {
 
         <!-- 新增跑者 -->
         <section class="mb-8">
-          <h2 class="text-sm font-semibold mb-3" style="color: #A3A3A3">新增跑者</h2>
-          <div
-            class="rounded-xl p-5 flex flex-col gap-3"
-            style="background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08)"
-          >
+          <h2 class="text-sm font-semibold mb-3" style="color: #6B7280">新增跑者</h2>
+          <div class="rounded-xl p-5 flex flex-col gap-3" style="background: #FFFFFF; border: 1px solid #E5E7EB">
             <div class="grid grid-cols-2 gap-3">
               <!-- 姓名 -->
               <div class="col-span-2 md:col-span-1">
-                <label class="text-xs font-mono mb-1 block" style="color: #525252">姓名</label>
+                <label class="text-xs font-mono mb-1 block" style="color: #9CA3AF">姓名</label>
                 <input
                   v-model="form.name"
                   placeholder="例：陳柏翰"
                   class="w-full rounded-lg px-3 py-2 text-sm outline-none"
-                  style="background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #E5E5E5"
+                  style="background: #F9FAFB; border: 1px solid #E5E7EB; color: #111827"
                 />
               </div>
               <!-- Emoji -->
               <div>
-                <label class="text-xs font-mono mb-1 block" style="color: #525252">頭像 Emoji</label>
+                <label class="text-xs font-mono mb-1 block" style="color: #9CA3AF">頭像 Emoji</label>
                 <input
                   v-model="form.avatar"
                   placeholder="🏃"
                   class="w-full rounded-lg px-3 py-2 text-sm outline-none"
-                  style="background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #E5E5E5"
+                  style="background: #F9FAFB; border: 1px solid #E5E7EB; color: #111827"
                 />
               </div>
             </div>
 
             <!-- 隊伍 -->
             <div>
-              <label class="text-xs font-mono mb-2 block" style="color: #525252">隊伍</label>
+              <label class="text-xs font-mono mb-2 block" style="color: #9CA3AF">隊伍</label>
               <div class="flex gap-3">
                 <label
                   v-for="t in (['A', 'B'] as const)"
                   :key="t"
                   class="flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer transition-all"
                   :style="form.team === t
-                    ? `background: ${teamColor(t)}22; border: 1px solid ${teamColor(t)}66; color: ${teamColor(t)}`
-                    : 'background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); color: #525252'"
+                    ? `background: ${teamColor(t)}18; border: 1px solid ${teamColor(t)}55; color: ${teamColor(t)}`
+                    : 'background: #F9FAFB; border: 1px solid #E5E7EB; color: #9CA3AF'"
                 >
                   <input v-model="form.team" type="radio" :value="t" class="hidden" />
-                  <span class="w-2 h-2 rounded-full" :style="{ background: form.team === t ? teamColor(t) : '#525252' }"></span>
+                  <span class="w-2 h-2 rounded-full" :style="{ background: form.team === t ? teamColor(t) : '#D1D5DB' }"></span>
                   <span class="text-sm font-semibold">{{ teamName(t) }}</span>
                 </label>
               </div>
             </div>
 
-            <p v-if="addError" class="text-xs font-mono" style="color: #EF4444">{{ addError }}</p>
+            <p v-if="addError" class="text-xs font-mono" style="color: #DC2626">{{ addError }}</p>
 
             <button
               @click="addRunner"
               :disabled="adding || !form.name.trim()"
               class="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg text-sm font-semibold transition-opacity"
               :style="adding || !form.name.trim()
-                ? 'background: rgba(255,255,255,.05); color: #525252; cursor: not-allowed; opacity: .5'
-                : 'background: rgba(245,158,11,.15); color: #FBBF24; border: 1px solid rgba(245,158,11,.2); cursor: pointer'"
+                ? 'background: #F3F4F6; color: #9CA3AF; cursor: not-allowed; opacity: .6'
+                : 'background: #FFF7ED; color: #EA580C; border: 1px solid #FDBA74; cursor: pointer'"
             >
               <Plus :size="15" />
               {{ adding ? '新增中...' : '新增跑者' }}
@@ -328,15 +320,15 @@ async function copyLink(runnerId: string) {
         </section>
 
         <!-- 跑者列表 -->
-        <section>
-          <p v-if="deleteError" class="text-xs font-mono mb-3 px-3 py-2 rounded-lg" style="color: #EF4444; background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2)">
+        <section class="mb-8">
+          <p v-if="deleteError" class="text-xs font-mono mb-3 px-3 py-2 rounded-lg" style="color: #DC2626; background: #FEF2F2; border: 1px solid #FECACA">
             {{ deleteError }}
           </p>
-          <h2 class="text-sm font-semibold mb-3" style="color: #A3A3A3">
+          <h2 class="text-sm font-semibold mb-3" style="color: #6B7280">
             跑者列表（{{ runners.length }} 人）
           </h2>
 
-          <div v-if="loadingRunners" class="text-xs font-mono text-center py-8 animate-pulse" style="color: #525252">
+          <div v-if="loadingRunners" class="text-xs font-mono text-center py-8 animate-pulse" style="color: #9CA3AF">
             載入中...
           </div>
 
@@ -345,11 +337,11 @@ async function copyLink(runnerId: string) {
               v-for="runner in runners"
               :key="runner.id"
               class="flex items-center gap-3 px-4 py-3 rounded-lg"
-              style="background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06)"
+              style="background: #FFFFFF; border: 1px solid #E5E7EB"
             >
               <span class="text-lg">{{ runner.avatar }}</span>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold" style="color: #E5E5E5">{{ runner.name }}</p>
+                <p class="text-sm font-semibold" style="color: #111827">{{ runner.name }}</p>
                 <p class="text-xs font-mono" :style="{ color: teamColor(runner.team) }">
                   {{ teamName(runner.team) }}
                 </p>
@@ -358,14 +350,14 @@ async function copyLink(runnerId: string) {
                 @click="deleteRunner(runner.id)"
                 :disabled="deletingId === runner.id"
                 class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono transition-opacity hover:opacity-70"
-                style="background: rgba(239,68,68,.1); color: #EF4444; border: 1px solid rgba(239,68,68,.2)"
+                style="background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA"
               >
                 <Trash2 :size="12" />
                 {{ deletingId === runner.id ? '刪除中' : '刪除' }}
               </button>
             </div>
 
-            <p v-if="runners.length === 0" class="text-xs font-mono text-center py-8" style="color: #525252">
+            <p v-if="runners.length === 0" class="text-xs font-mono text-center py-8" style="color: #9CA3AF">
               尚無跑者
             </p>
           </div>
@@ -373,32 +365,32 @@ async function copyLink(runnerId: string) {
 
         <!-- 參賽者連結 -->
         <section class="mb-8">
-          <h2 class="text-sm font-semibold mb-3" style="color: #A3A3A3">參賽者連結</h2>
+          <h2 class="text-sm font-semibold mb-3" style="color: #6B7280">參賽者連結</h2>
           <div class="flex flex-col gap-2">
             <div
               v-for="runner in runners"
               :key="runner.id"
               class="flex items-center gap-3 px-4 py-3 rounded-lg"
-              style="background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06)"
+              style="background: #FFFFFF; border: 1px solid #E5E7EB"
             >
               <span class="text-lg shrink-0">{{ runner.avatar }}</span>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold" style="color: #E5E5E5">{{ runner.name }}</p>
-                <p class="text-xs font-mono truncate" style="color: #404040">{{ connectUrl(runner.id) }}</p>
+                <p class="text-sm font-semibold" style="color: #111827">{{ runner.name }}</p>
+                <p class="text-xs font-mono truncate" style="color: #D1D5DB">{{ connectUrl(runner.id) }}</p>
               </div>
               <button
                 @click="copyLink(runner.id)"
                 class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono shrink-0 transition-opacity hover:opacity-70"
                 :style="copiedId === runner.id
-                  ? 'background: rgba(74,222,128,.1); color: #4ADE80; border: 1px solid rgba(74,222,128,.2)'
-                  : 'background: rgba(245,158,11,.1); color: #FBBF24; border: 1px solid rgba(245,158,11,.2)'"
+                  ? 'background: #F0FDF4; color: #16A34A; border: 1px solid #BBF7D0'
+                  : 'background: #FFF7ED; color: #EA580C; border: 1px solid #FDBA74'"
               >
                 <Check v-if="copiedId === runner.id" :size="12" />
                 <Copy v-else :size="12" />
                 {{ copiedId === runner.id ? '已複製' : '複製' }}
               </button>
             </div>
-            <p v-if="runners.length === 0" class="text-xs font-mono text-center py-6" style="color: #525252">
+            <p v-if="runners.length === 0" class="text-xs font-mono text-center py-6" style="color: #9CA3AF">
               尚無跑者
             </p>
           </div>

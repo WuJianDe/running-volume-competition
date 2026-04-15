@@ -54,11 +54,11 @@ const connectRunner = computed(() =>
 <template>
   <div
     class="h-full w-full overflow-auto"
-    style="background: #0A0A0A; color: #E5E5E5; font-family: 'Outfit', sans-serif"
+    style="background: #F9FAFB; color: #111827; font-family: 'Outfit', sans-serif"
   >
     <!-- Loading -->
     <div v-if="loading" class="h-full flex items-center justify-center">
-      <p class="font-mono text-xs tracking-widest animate-pulse" style="color: #525252">
+      <p class="font-mono text-xs tracking-widest animate-pulse" style="color: #9CA3AF">
         LOADING...
       </p>
     </div>
@@ -78,12 +78,12 @@ const connectRunner = computed(() =>
       <div v-if="justConnected" class="max-w-5xl mx-auto px-5 mb-4 fade-up">
         <div
           class="flex items-center justify-between gap-3 px-4 py-3 rounded-lg"
-          style="background: rgba(74,222,128,.06); border: 1px solid rgba(74,222,128,.2)"
+          style="background: #F0FDF4; border: 1px solid #BBF7D0"
         >
-          <p class="text-xs font-mono" style="color: #4ADE80">
+          <p class="text-xs font-mono" style="color: #16A34A">
             ✓ Strava 已成功連結！點擊右下角「更新數據」按鈕同步成績
           </p>
-          <button @click="justConnected = false" class="text-xs font-mono shrink-0" style="color: #525252">✕</button>
+          <button @click="justConnected = false" class="text-xs font-mono shrink-0" style="color: #9CA3AF">✕</button>
         </div>
       </div>
 
@@ -91,14 +91,14 @@ const connectRunner = computed(() =>
       <section v-if="connectRunnerId" class="max-w-5xl mx-auto px-5 mb-6 fade-up">
         <div
           class="flex flex-col items-center gap-4 px-6 py-8 rounded-xl text-center"
-          style="background: rgba(255,255,255,.02); border: 1px solid rgba(245,158,11,.15)"
+          style="background: #FFFFFF; border: 1px solid #FDBA74"
         >
           <p class="text-2xl">🏃</p>
           <div>
-            <p class="font-semibold" style="color: #F5F5F5">
+            <p class="font-semibold" style="color: #111827">
               {{ connectRunner ? connectRunner.name : '跑者' }}，歡迎加入！
             </p>
-            <p class="text-xs mt-1" style="color: #737373">連結你的 Strava 帳號以自動同步跑步資料</p>
+            <p class="text-xs mt-1" style="color: #9CA3AF">連結你的 Strava 帳號以自動同步跑步資料</p>
           </div>
           <a
             :href="`/api/strava/auth?runner_id=${connectRunnerId}`"
@@ -143,7 +143,7 @@ const connectRunner = computed(() =>
       </section>
 
       <footer class="text-center pb-10 fade-up fade-up-8">
-        <p class="text-xs font-mono" style="color: #333">RUNNING LEAGUE © 2025</p>
+        <p class="text-xs font-mono" style="color: #D1D5DB">RUNNING LEAGUE © 2025</p>
       </footer>
     </template>
 

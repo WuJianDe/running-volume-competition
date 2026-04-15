@@ -1,9 +1,9 @@
-import { computed } from 'vue'
-import { runners } from '@/data/runners'
+import { ref, computed, onMounted } from 'vue'
+import { supabase } from '@/lib/supabase'
 import { calcScore } from '@/utils/format'
-import type { RankedRunner } from '@/types/runner'
+import type { Runner, RankedRunner } from '@/types/runner'
 
-function rankTeam(team: 'A' | 'B'): RankedRunner[] {
+function rankTeam(runners: Runner[], team: 'A' | 'B'): RankedRunner[] {
   return runners
     .filter(r => r.team === team)
     .map(r => ({ ...r, score: calcScore(r.distance, r.elevation) }))
@@ -12,15 +12,31 @@ function rankTeam(team: 'A' | 'B'): RankedRunner[] {
 }
 
 export function useLeaderboard() {
-  const rankedTeamA = computed<RankedRunner[]>(() => rankTeam('A'))
-  const rankedTeamB = computed<RankedRunner[]>(() => rankTeam('B'))
+  const runners = ref<Runner[]>([])
+  const loading = ref(true)
+  const error = ref<string | null>(null)
 
-  const teamAScore = computed(() => rankedTeamA.value.reduce((s, r) => s + r.score, 0))
-  const teamBScore = computed(() => rankedTeamB.value.reduce((s, r) => s + r.score, 0))
+  onMounted(async () => {
+    const { data, error: err } = await supabase
+      .from('runners')
+      .select('name, avatar, distance, elevation, team')
 
-  const totalRunners  = computed(() => runners.length)
-  const totalDistance = computed(() => runners.reduce((s, r) => s + r.distance, 0))
-  const totalElevation = computed(() => runners.reduce((s, r) => s + r.elevation, 0))
+    if (err) {
+      error.value = err.message
+    } else {
+      runners.value = (data ?? []) as Runner[]
+    }
+    loading.value = false
+  })
+
+  const rankedTeamA = computed<RankedRunner[]>(() => rankTeam(runners.value, 'A'))
+  const rankedTeamB = computed<RankedRunner[]>(() => rankTeam(runners.value, 'B'))
+
+  const teamAScore    = computed(() => rankedTeamA.value.reduce((s, r) => s + r.score, 0))
+  const teamBScore    = computed(() => rankedTeamB.value.reduce((s, r) => s + r.score, 0))
+  const totalRunners  = computed(() => runners.value.length)
+  const totalDistance = computed(() => runners.value.reduce((s, r) => s + r.distance, 0))
+  const totalElevation = computed(() => runners.value.reduce((s, r) => s + r.elevation, 0))
 
   const leadingTeam = computed(() => {
     if (teamAScore.value > teamBScore.value) return '紅隊'
@@ -29,6 +45,8 @@ export function useLeaderboard() {
   })
 
   return {
+    loading,
+    error,
     rankedTeamA,
     rankedTeamB,
     teamAScore,

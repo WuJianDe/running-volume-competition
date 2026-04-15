@@ -70,10 +70,12 @@ async function addRunner() {
 
 // ── 刪除跑者 ─────────────────────────────────────────────────
 const deletingId = ref<string | null>(null)
+const deleteError = ref('')
 
 async function deleteRunner(id: string) {
   if (!confirm('確定要刪除這位跑者？')) return
   deletingId.value = id
+  deleteError.value = ''
 
   const res = await fetch('/api/admin/delete-runner', {
     method: 'POST',
@@ -84,8 +86,13 @@ async function deleteRunner(id: string) {
     body: JSON.stringify({ id }),
   })
 
+  const data = await res.json()
+
   if (res.ok) {
     runners.value = runners.value.filter(r => r.id !== id)
+  } else {
+    deleteError.value = `刪除失敗（${res.status}）：${data.error ?? '未知錯誤'}`
+    if (res.status === 401) authenticated.value = false
   }
   deletingId.value = null
 }
@@ -220,6 +227,9 @@ const teamColor = (t: 'A' | 'B') => t === 'A' ? '#EC4899' : '#3B82F6'
 
         <!-- 跑者列表 -->
         <section>
+          <p v-if="deleteError" class="text-xs font-mono mb-3 px-3 py-2 rounded-lg" style="color: #EF4444; background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2)">
+            {{ deleteError }}
+          </p>
           <h2 class="text-sm font-semibold mb-3" style="color: #A3A3A3">
             跑者列表（{{ runners.length }} 人）
           </h2>

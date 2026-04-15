@@ -6,8 +6,9 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 )
 
-// 賽季起始時間（2025 Q3 = 7/1）
-const SEASON_START = Math.floor(new Date('2025-07-01T00:00:00Z').getTime() / 1000)
+// 賽季區間：2026/04/01 ~ 2026/04/30
+const SEASON_START = Math.floor(new Date('2026-04-01T00:00:00Z').getTime() / 1000)
+const SEASON_END   = Math.floor(new Date('2026-05-01T00:00:00Z').getTime() / 1000)
 
 async function getValidAccessToken(token: Record<string, any>): Promise<string> {
   const now = Math.floor(Date.now() / 1000)
@@ -46,7 +47,7 @@ async function fetchAllActivities(accessToken: string): Promise<any[]> {
 
   while (true) {
     const res = await fetch(
-      `https://www.strava.com/api/v3/athlete/activities?after=${SEASON_START}&per_page=200&page=${page}`,
+      `https://www.strava.com/api/v3/athlete/activities?after=${SEASON_START}&before=${SEASON_END}&per_page=200&page=${page}`,
       { headers: { Authorization: `Bearer ${accessToken}` } },
     )
     const batch = await res.json()

@@ -18,7 +18,6 @@ defineProps<{
     <div class="flex items-center gap-2 mb-3 px-3">
       <div class="w-2 h-2 rounded-full" :style="{ background: teamColor }"></div>
       <h3 class="font-semibold text-sm md:text-base" style="color: #F5F5F5">{{ teamName }}</h3>
-      <span class="text-xs font-mono" style="color: #525252">{{ formatNum(teamScore) }}分</span>
     </div>
 
     <!-- 欄位標頭 -->
@@ -42,6 +41,23 @@ defineProps<{
         :teamColor="teamColor"
         :animDelay="i + 5"
       />
+
+      <!-- 隊伍總分 -->
+      <div
+        class="grid items-center rounded-lg px-2.5 py-3 mt-1"
+        style="
+          grid-template-columns: 40px 1fr repeat(3, 80px);
+          border-top: 1px solid rgba(255,255,255,.08);
+        "
+      >
+        <div></div>
+        <span class="text-xs font-mono tracking-wider" style="color: #525252">隊伍總分</span>
+        <div></div>
+        <div></div>
+        <div class="text-right font-mono text-sm font-bold" :style="{ color: teamColor }">
+          {{ formatNum(teamScore) }}
+        </div>
+      </div>
     </div>
   </div>
 </template>

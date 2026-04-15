@@ -21,14 +21,11 @@ defineProps<{
     </div>
 
     <!-- 欄位標頭 -->
-    <div
-      class="grid items-center mb-2 px-3 text-xs font-mono tracking-wider"
-      style="color: #9CA3AF; grid-template-columns: 40px 1fr repeat(4, 68px)"
-    >
+    <div class="header-row grid items-center mb-2 px-3 text-xs font-mono tracking-wider" style="color: #9CA3AF">
       <span>#</span>
       <span>跑者</span>
-      <span class="text-right">距離</span>
-      <span class="text-right">爬升</span>
+      <span class="col-desktop text-right">距離</span>
+      <span class="col-desktop text-right">爬升</span>
       <span class="text-right">總分</span>
       <span class="text-right">活動</span>
     </div>
@@ -37,24 +34,18 @@ defineProps<{
     <div class="flex flex-col gap-1.5">
       <RunnerRow
         v-for="(runner, i) in runners"
-        :key="runner.name"
+        :key="runner.id"
         :runner="runner"
         :teamColor="teamColor"
         :animDelay="i + 5"
       />
 
       <!-- 隊伍總分 -->
-      <div
-        class="grid items-center rounded-lg px-2.5 py-3 mt-1"
-        style="
-          grid-template-columns: 40px 1fr repeat(4, 68px);
-          border-top: 1px solid #E5E7EB;
-        "
-      >
+      <div class="total-row grid items-center rounded-lg px-2.5 py-3 mt-1" style="border-top: 1px solid #E5E7EB">
         <div></div>
         <span class="text-xs font-mono tracking-wider" style="color: #9CA3AF">隊伍總分</span>
-        <div></div>
-        <div></div>
+        <div class="col-desktop"></div>
+        <div class="col-desktop"></div>
         <div class="text-right font-mono text-sm font-bold" :style="{ color: teamColor }">
           {{ formatNum(teamScore) }}
         </div>
@@ -63,3 +54,24 @@ defineProps<{
     </div>
   </div>
 </template>
+
+<style scoped>
+.header-row,
+.total-row {
+  grid-template-columns: 40px 1fr 68px 52px;
+}
+@media (min-width: 768px) {
+  .header-row,
+  .total-row {
+    grid-template-columns: 40px 1fr repeat(4, 68px);
+  }
+}
+.col-desktop {
+  display: none;
+}
+@media (min-width: 768px) {
+  .col-desktop {
+    display: block;
+  }
+}
+</style>

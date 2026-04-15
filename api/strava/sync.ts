@@ -76,6 +76,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
+  // Rate limiting：60 秒內只允許一次同步
+  const { data: recentSync } = await supabase
+    .from('runners')
+    .select('synced_at')
+    .not('synced_at', 'is', null)
+    .order('synced_at', { ascending: false })
+    .limit(1)
+
+  if (recentSync?.[0]?.synced_at) {
+    const age = (Date.now() - new Date(recentSync[0].synced_at).getTime()) / 1000
+    if (age < 60) {
+      return res.status(429).json({
+        error: `請稍後再試（${Math.ceil(60 - age)} 秒後可再次同步）`,
+        retryAfter: Math.ceil(60 - age),
+      })
+    }
+  }
+
   const { data: tokens, error: tokensErr } = await supabase
     .from('runner_tokens')
     .select('*')

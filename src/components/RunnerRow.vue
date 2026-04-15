@@ -19,46 +19,62 @@ const badgeStyle = computed(() => {
 })
 
 const nameColor = computed(() => (props.runner.rank === 1 ? props.teamColor : '#111827'))
+const unsynced = computed(() => props.runner.synced_at === null)
 </script>
 
 <template>
   <div
-    :class="`grid items-center rounded-lg px-2.5 py-2.5 row-hover fade-up fade-up-${Math.min(animDelay, 8)}`"
-    style="
-      grid-template-columns: 40px 1fr repeat(4, 68px);
-      border: 1px solid #F3F4F6;
-      background: #FFFFFF;
-    "
+    :class="`runner-row grid items-center rounded-lg px-2.5 py-2.5 row-hover fade-up fade-up-${Math.min(animDelay, 8)}`"
+    style="border: 1px solid #F3F4F6; background: #FFFFFF"
   >
     <!-- 名次徽章 -->
     <div class="rank-badge" :style="badgeStyle">{{ runner.rank }}</div>
 
     <!-- 跑者名稱 -->
-    <div class="flex items-center gap-2">
-      <span class="text-lg">{{ runner.avatar }}</span>
-      <span class="font-semibold text-xs md:text-sm" :style="{ color: nameColor }">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="text-lg shrink-0">{{ runner.avatar }}</span>
+      <span class="font-semibold text-xs md:text-sm truncate" :style="{ color: nameColor }">
         {{ runner.name }}
       </span>
     </div>
 
-    <!-- 距離 (km) -->
-    <div class="text-right font-mono text-xs" style="color: #6B7280">
-      {{ formatKm(runner.distance) }}
+    <!-- 距離 (km) — 桌機才顯示 -->
+    <div class="col-desktop text-right font-mono text-xs" style="color: #6B7280">
+      {{ unsynced ? '—' : formatKm(runner.distance) }}
     </div>
 
-    <!-- 爬升 (m) -->
-    <div class="text-right font-mono text-xs" style="color: #6B7280">
-      {{ formatNum(runner.elevation) }}
+    <!-- 爬升 (m) — 桌機才顯示 -->
+    <div class="col-desktop text-right font-mono text-xs" style="color: #6B7280">
+      {{ unsynced ? '—' : formatNum(runner.elevation) }}
     </div>
 
     <!-- 總分 -->
-    <div class="text-right font-mono text-xs font-bold" :style="{ color: nameColor }">
-      {{ formatNum(runner.score) }}
+    <div class="text-right font-mono text-xs font-bold" :style="{ color: unsynced ? '#9CA3AF' : nameColor }">
+      {{ unsynced ? '—' : formatNum(runner.score) }}
     </div>
 
     <!-- 活動數量 -->
     <div class="text-right font-mono text-xs" style="color: #6B7280">
-      {{ runner.activities }}
+      {{ unsynced ? '—' : runner.activities }}
     </div>
   </div>
 </template>
+
+<style scoped>
+.runner-row {
+  grid-template-columns: 40px 1fr 68px 52px;
+}
+@media (min-width: 768px) {
+  .runner-row {
+    grid-template-columns: 40px 1fr repeat(4, 68px);
+  }
+}
+.col-desktop {
+  display: none;
+}
+@media (min-width: 768px) {
+  .col-desktop {
+    display: block;
+  }
+}
+</style>

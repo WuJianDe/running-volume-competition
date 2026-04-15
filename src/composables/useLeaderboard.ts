@@ -1,4 +1,4 @@
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { supabase } from '@/lib/supabase'
 import { calcScore } from '@/utils/format'
 import type { Runner, RankedRunner } from '@/types/runner'
@@ -7,7 +7,7 @@ function rankTeam(runners: Runner[], team: 'A' | 'B'): RankedRunner[] {
   return runners
     .filter(r => r.team === team)
     .map(r => ({ ...r, score: calcScore(r.distance, r.elevation) }))
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => b.score - a.score || b.elevation - a.elevation)
     .map((r, i) => ({ ...r, rank: i + 1 }))
 }
 
@@ -33,6 +33,13 @@ export function useLeaderboard() {
   }
 
   onMounted(fetchRunners)
+
+  const channel = supabase
+    .channel('runners-realtime')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'runners' }, fetchRunners)
+    .subscribe()
+
+  onUnmounted(() => { supabase.removeChannel(channel) })
 
   const rankedTeamA  = computed<RankedRunner[]>(() => rankTeam(runners.value, 'A'))
   const rankedTeamB  = computed<RankedRunner[]>(() => rankTeam(runners.value, 'B'))

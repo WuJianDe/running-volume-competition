@@ -30,11 +30,15 @@ async function sync() {
     const res = await fetch('/api/strava/sync', { method: 'POST', signal: controller.signal })
     clearTimeout(timeout)
     const data = await res.json()
-    message.value = {
-      text: data.synced > 0 ? `已同步 ${data.synced} 位跑者` : (data.message ?? '尚未有跑者連結 Strava'),
-      ok: true,
+    if (res.status === 429) {
+      message.value = { text: data.error, ok: false }
+    } else {
+      message.value = {
+        text: data.synced > 0 ? `已同步 ${data.synced} 位跑者` : (data.message ?? '尚未有跑者連結 Strava'),
+        ok: true,
+      }
+      emit('synced')
     }
-    emit('synced')
   } catch (e: unknown) {
     clearTimeout(timeout)
     const isAbort = e instanceof DOMException && e.name === 'AbortError'

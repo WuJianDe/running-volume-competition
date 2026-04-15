@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { RankedRunner } from '@/types/runner'
-import { formatKm, formatNum } from '@/utils/format'
+import { formatNum } from '@/utils/format'
 
 const props = defineProps<{
   runner: RankedRunner
@@ -25,7 +25,7 @@ const nameColor = computed(() => (props.runner.rank === 1 ? props.teamColor : '#
   <div
     :class="`grid items-center rounded-lg px-2.5 py-2.5 row-hover fade-up fade-up-${Math.min(animDelay, 8)}`"
     style="
-      grid-template-columns: 40px 1fr repeat(3, 80px);
+      grid-template-columns: 40px 1fr 80px;
       border: 1px solid rgba(255,255,255,.04);
       background: rgba(255,255,255,.02);
     "
@@ -39,16 +39,6 @@ const nameColor = computed(() => (props.runner.rank === 1 ? props.teamColor : '#
       <span class="font-semibold text-xs md:text-sm" :style="{ color: nameColor }">
         {{ runner.name }}
       </span>
-    </div>
-
-    <!-- 距離 (km) -->
-    <div class="text-right font-mono text-xs" style="color: #A3A3A3">
-      {{ formatKm(runner.distance) }}
-    </div>
-
-    <!-- 爬升 (m) -->
-    <div class="text-right font-mono text-xs" style="color: #A3A3A3">
-      {{ formatNum(runner.elevation) }}
     </div>
 
     <!-- 分數 -->

@@ -11,7 +11,7 @@ import { Info } from 'lucide-vue-next'
       <Info :size="16" style="color: #FBBF24; flex-shrink: 0" />
       <p class="text-xs" style="color: #A3A3A3">
         <span class="font-medium" style="color: #FBBF24">計分規則</span>
-        — 每跑 1 公尺 = 1 分 ｜ 每爬升 100 公尺 = 1 分
+        — 每跑 1 公里 = 1 分 ｜ 每爬升 100 公尺 = 1 分
       </p>
     </div>
   </section>

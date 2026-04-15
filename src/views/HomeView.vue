@@ -54,18 +54,18 @@ const connectRunner = computed(() =>
 
 <template>
   <div
-    class="h-full w-full overflow-auto"
+    class="min-h-screen w-full"
     style="background: #F9FAFB; color: #111827; font-family: 'Outfit', sans-serif"
   >
     <!-- Loading -->
-    <div v-if="loading" class="h-full flex items-center justify-center">
+    <div v-if="loading" class="min-h-screen flex items-center justify-center">
       <p class="font-mono text-xs tracking-widest animate-pulse" style="color: #9CA3AF">
         LOADING...
       </p>
     </div>
 
     <!-- Error -->
-    <div v-else-if="error" class="h-full flex items-center justify-center px-5">
+    <div v-else-if="error" class="min-h-screen flex items-center justify-center px-5">
       <p class="font-mono text-xs text-center" style="color: #EF4444">
         無法載入資料：{{ error }}
       </p>

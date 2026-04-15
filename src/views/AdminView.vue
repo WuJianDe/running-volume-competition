@@ -200,7 +200,7 @@ async function copyLink(runnerId: string) {
 
 <template>
   <div
-    class="min-h-full w-full overflow-auto"
+    class="min-h-screen w-full"
     style="background: #F9FAFB; color: #111827; font-family: 'Outfit', sans-serif"
   >
     <div class="max-w-2xl mx-auto px-5 py-10">

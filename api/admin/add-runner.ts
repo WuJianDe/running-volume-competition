@@ -13,11 +13,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(401).json({ error: '密碼錯誤' })
   }
 
-  const { name, avatar, team, strava_name } = req.body as {
+  const { name, avatar, team } = req.body as {
     name: string
     avatar: string
     team: 'A' | 'B'
-    strava_name?: string
   }
 
   if (!name?.trim() || !avatar?.trim() || !['A', 'B'].includes(team)) {
@@ -30,7 +29,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       name: name.trim(),
       avatar: avatar.trim(),
       team,
-      strava_name: strava_name?.trim() ?? '',
       distance: 0,
       elevation: 0,
       activities: 0,

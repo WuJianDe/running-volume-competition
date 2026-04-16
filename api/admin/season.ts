@@ -11,17 +11,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'GET') {
     const { data, error } = await supabase
       .from('settings')
-      .select('season_start, season_end, strava_club_id, strava_access_token')
+      .select('season_start, season_end')
       .eq('id', 1)
       .single()
 
     if (error) return res.status(500).json({ error: error.message })
 
     return res.json({
-      season_start:     data.season_start,
-      season_end:       data.season_end,
-      strava_club_id:   data.strava_club_id ?? '',
-      strava_connected: !!data.strava_access_token,
+      season_start: data.season_start,
+      season_end:   data.season_end,
     })
   }
 
@@ -31,10 +29,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(401).json({ error: '密碼錯誤' })
     }
 
-    const { season_start, season_end, strava_club_id } = req.body as {
+    const { season_start, season_end } = req.body as {
       season_start: string
       season_end: string
-      strava_club_id?: string
     }
 
     if (!season_start || !season_end) {
@@ -47,11 +44,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const { error } = await supabase
       .from('settings')
-      .update({ season_start, season_end, strava_club_id: strava_club_id ?? '' })
+      .update({ season_start, season_end })
       .eq('id', 1)
 
     if (error) return res.status(500).json({ error: error.message })
-    return res.json({ success: true, season_start, season_end, strava_club_id })
+    return res.json({ success: true, season_start, season_end })
   }
 
   res.status(405).json({ error: 'Method not allowed' })

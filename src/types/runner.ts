@@ -6,7 +6,6 @@ export interface Runner {
   elevation: number  // 單位：公尺
   activities: number // 活動次數
   team: 'A' | 'B'
-  strava_name: string
   synced_at: string | null
 }
 

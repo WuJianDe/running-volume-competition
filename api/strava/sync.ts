@@ -151,14 +151,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const allActivities = await fetchClubActivities(accessToken, season.club_id, season.start)
 
-  // 過濾：只保留賽季區間內的跑步活動
+  // 過濾：只保留賽季區間內的跑步活動（無 start_date 的一律排除）
   const runs = allActivities.filter(a => {
     if (a.sport_type !== 'Run' && a.type !== 'Run') return false
-    if (a.start_date) {
-      const d = new Date(a.start_date)
-      if (d < season.start || d > season.end) return false
-    }
-    return true
+    if (!a.start_date) return false
+    const d = new Date(a.start_date)
+    return d >= season.start && d <= season.end
   })
 
   // 依 Strava 顯示名稱（firstname + lastname）累加
@@ -217,10 +215,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     results.push({ runner_id: runner.id, name: stravaName, synced: !error, reason: error?.message })
   }
 
+  const dates = runs.map(a => a.start_date!).sort()
   res.json({
-    synced:  results.filter(r => r.synced).length,
-    total:   runners.length,
-    fetched: runs.length,
+    synced:   results.filter(r => r.synced).length,
+    total:    runners.length,
+    fetched:  runs.length,
+    fetchedBeforeFilter: allActivities.length,
+    activityDateRange: dates.length
+      ? { from: dates[0], to: dates[dates.length - 1] }
+      : null,
+    stravaNames: Array.from(byName.entries()).map(([name, s]) => ({
+      name,
+      activities: s.count,
+    })),
     results,
   })
 }

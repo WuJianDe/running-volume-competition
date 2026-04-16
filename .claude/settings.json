@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd 'D:/vibe-projects/running-volume-competition' && git add -A && git diff --staged --quiet || (git commit -m \"chore: auto-save\" && git push origin main)",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

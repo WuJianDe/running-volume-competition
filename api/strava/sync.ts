@@ -164,7 +164,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // 依 Strava 顯示名稱（firstname + lastname）累加
   const byName = new Map<string, { distance: number; elevation: number; count: number }>()
   for (const act of runs) {
-    const key = `${act.athlete.firstname} ${act.athlete.lastname}`.trim()
+    const key = `${act.athlete.firstname} ${act.athlete.lastname}`.trim().replace(/\.$/, '')
     const cur = byName.get(key) ?? { distance: 0, elevation: 0, count: 0 }
     byName.set(key, {
       distance:  cur.distance  + Math.round(act.distance),
@@ -221,7 +221,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     synced:  results.filter(r => r.synced).length,
     total:   runners.length,
     fetched: runs.length,
-    stravaNames: Array.from(byName.keys()),
     results,
   })
 }

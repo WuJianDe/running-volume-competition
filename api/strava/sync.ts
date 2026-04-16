@@ -224,6 +224,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     activityDateRange: dates.length
       ? { from: dates[0], to: dates[dates.length - 1] }
       : null,
+    sampleActivity: allActivities[0] ?? null,
     stravaNames: Array.from(byName.entries()).map(([name, s]) => ({
       name,
       activities: s.count,

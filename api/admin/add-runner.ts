@@ -13,7 +13,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(401).json({ error: '密碼錯誤' })
   }
 
-  const { name, avatar, team } = req.body as { name: string; avatar: string; team: 'A' | 'B' }
+  const { name, avatar, team, strava_name } = req.body as {
+    name: string
+    avatar: string
+    team: 'A' | 'B'
+    strava_name?: string
+  }
 
   if (!name?.trim() || !avatar?.trim() || !['A', 'B'].includes(team)) {
     return res.status(400).json({ error: '缺少必要欄位' })
@@ -21,7 +26,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { data, error } = await supabase
     .from('runners')
-    .insert({ name: name.trim(), avatar: avatar.trim(), team, distance: 0, elevation: 0, activities: 0 })
+    .insert({
+      name: name.trim(),
+      avatar: avatar.trim(),
+      team,
+      strava_name: strava_name?.trim() ?? '',
+      distance: 0,
+      elevation: 0,
+      activities: 0,
+    })
     .select()
     .single()
 

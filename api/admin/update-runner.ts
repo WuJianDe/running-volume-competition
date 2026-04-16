@@ -15,11 +15,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(401).json({ error: '密碼錯誤' })
   }
 
-  const { id, name, avatar, team } = req.body as {
+  const { id, name, avatar, team, strava_name } = req.body as {
     id: string
     name: string
     avatar: string
     team: 'A' | 'B'
+    strava_name?: string
   }
 
   if (!id || !name?.trim()) {
@@ -32,7 +33,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { error } = await supabase
     .from('runners')
-    .update({ name: name.trim(), avatar, team })
+    .update({ name: name.trim(), avatar, team, strava_name: strava_name?.trim() ?? '' })
     .eq('id', id)
 
   if (error) return res.status(500).json({ error: error.message })

@@ -221,6 +221,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     synced:  results.filter(r => r.synced).length,
     total:   runners.length,
     fetched: runs.length,
+    stravaNames: Array.from(byName.keys()),
     results,
   })
 }

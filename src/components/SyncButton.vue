@@ -30,11 +30,11 @@ async function sync() {
     const res = await fetch('/api/strava/sync', { method: 'POST', signal: controller.signal })
     clearTimeout(timeout)
     const data = await res.json()
-    if (res.status === 429) {
-      message.value = { text: data.error, ok: false }
+    if (!res.ok) {
+      message.value = { text: data.error ?? '同步失敗', ok: false }
     } else {
       message.value = {
-        text: data.synced > 0 ? `已同步 ${data.synced} 位跑者` : (data.message ?? '尚未有跑者連結 Strava'),
+        text: data.synced > 0 ? `已同步 ${data.synced} 位跑者` : (data.message ?? '本季尚無跑步資料'),
         ok: true,
       }
       emit('synced')

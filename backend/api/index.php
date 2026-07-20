@@ -74,7 +74,7 @@ function apiPath(): string {
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
     $marker = '/api';
     $position = strpos($path, $marker);
-    return $position === false ? '/' : substr($path, $position + strlen($marker)) ?: '/';
+    return $position === false ? '/' : (substr($path, $position + strlen($marker)) ?: '/');
 }
 
 function uuid(): string {

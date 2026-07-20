@@ -1,4 +1,4 @@
-export const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')
+export const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || `${import.meta.env.BASE_URL}api`).replace(/\/$/, '')
 
 export class ApiError extends Error {
   readonly status: number

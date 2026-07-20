@@ -12,7 +12,7 @@ return [
         'user' => 'database_user',
         'password' => 'database_password',
     ],
-    'app_url' => 'https://league.example.com',
+    'app_url' => 'https://league.example.com/running-volume-competition',
     'strava_client_id' => 'your-strava-client-id',
     'strava_client_secret' => 'your-strava-client-secret',
     'admin_secret' => 'replace-with-a-long-random-secret',

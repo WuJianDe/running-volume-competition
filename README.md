@@ -21,7 +21,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-`VITE_API_BASE_URL` 預設為 `/api`；本機若 PHP API 位於其他位置，請在 `.env.local` 覆寫。
+預設部署位置是 `/running-volume-competition/`，`.env.example` 已提供相對應的 Vite 與 API base path。若 PHP API 位於其他位置，請在 `.env.local` 覆寫。
 
 ## Cloudways 部署
 
@@ -29,9 +29,9 @@ npm run dev
 
 1. 匯入 `backend/schema.sql` 至 MySQL。
 2. 複製 `backend/config.example.php` 為 `backend/config.local.php` 並填入憑證。
-3. 將 `backend/api/` 部署至網站根目錄的 `api/`。
-4. 建置前端後，將 `dist/` 內容部署至網站根目錄。
-5. 在 Strava 設定 callback URL：`https://你的網域/api/strava/callback`。
+3. 將 `backend/api/` 部署至 `public_html/running-volume-competition/api/`。
+4. 建置前端後，將 `dist/` 內容與根目錄 `.htaccess` 部署至 `public_html/running-volume-competition/`。
+5. 在 Strava 設定 callback URL：`https://你的網域/running-volume-competition/api/strava/callback`。
 
 ## 常用指令
 

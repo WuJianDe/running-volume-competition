@@ -4,7 +4,7 @@ import AdminView from '@/views/AdminView.vue'
 import RunnerView from '@/views/RunnerView.vue'
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', component: HomeView },
     { path: '/admin', component: AdminView },

@@ -1,0 +1,10 @@
+RewriteEngine On
+RewriteBase /running-volume-competition/
+
+# PHP API has its own router and must never fall through to the Vue entry point.
+RewriteRule ^api/ - [L]
+
+# Serve existing static resources directly; route all Vue paths to index.html.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]

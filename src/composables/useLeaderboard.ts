@@ -21,7 +21,11 @@ export function useLeaderboard() {
     error.value = null
 
     try {
-      runners.value = await api<Runner[]>('/runners')
+      const data = await api<unknown>('/runners')
+      if (!Array.isArray(data)) {
+        throw new Error('API returned an invalid runner list. Please check /api/runners.')
+      }
+      runners.value = data as Runner[]
     } catch (err) {
       error.value = err instanceof Error ? err.message : '載入跑者資料失敗'
     } finally {

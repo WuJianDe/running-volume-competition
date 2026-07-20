@@ -14,7 +14,12 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
     ...init,
     headers: { Accept: 'application/json', ...init.headers },
   })
-  const data = await response.json().catch(() => ({})) as T & { error?: string }
+  let data: T & { error?: string }
+  try {
+    data = await response.json() as T & { error?: string }
+  } catch {
+    throw new ApiError('API did not return JSON. Please check the PHP API deployment path.', response.status)
+  }
   if (!response.ok) throw new ApiError(data.error || 'Request failed', response.status)
   return data
 }

@@ -11,7 +11,9 @@ session_start([
 $configFile = dirname(__DIR__) . '/config.local.php';
 if (!is_file($configFile)) {
     http_response_code(500);
-    exit('Server configuration is missing.');
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['error' => 'Server configuration is missing. Create config.local.php in the application root.']);
+    exit;
 }
 $config = require $configFile;
 
@@ -26,7 +28,9 @@ try {
 } catch (Throwable $e) {
     error_log('Running League database connection failed: ' . $e->getMessage());
     http_response_code(500);
-    exit('Database connection failed.');
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['error' => 'Database connection failed. Check config.local.php credentials.']);
+    exit;
 }
 
 function jsonResponse(mixed $data, int $status = 200): never {

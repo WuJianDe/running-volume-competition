@@ -41,7 +41,7 @@ const connectRunnerId = searchParams.get('connect')
 const justConnected   = ref(searchParams.get('connected') === 'true')
 
 if (justConnected.value) {
-  window.history.replaceState({}, '', '/')
+  window.history.replaceState({}, '', import.meta.env.BASE_URL)
 }
 
 const connectRunner = computed(() =>

@@ -33,6 +33,8 @@ npm run dev
 4. 建置前端後，將 `dist/` 內容與根目錄 `.htaccess` 部署至 `public_html/running-volume-competition/`。
 5. 在 Strava 設定 callback URL：`https://你的網域/running-volume-competition/api.php?_route=/strava/callback`。
 
+管理頁採用不依賴伺服器 rewrite 的 hash 路由：`https://你的網域/running-volume-competition/#/admin`。
+
 ## 常用指令
 
 `npm run build` 完成後，`dist/` 會包含前端、PHP API、Apache rewrite、`config.local.php` 範本與 Cloudways 上傳說明。

@@ -119,7 +119,9 @@ async function saveSeason() {
 const copiedId = ref<string | null>(null)
 
 function connectUrl(runnerId: string) {
-  return `${window.location.origin}/?connect=${runnerId}`
+  const url = new URL(import.meta.env.BASE_URL, window.location.origin)
+  url.searchParams.set('connect', runnerId)
+  return url.toString()
 }
 
 async function copyLink(runnerId: string) {

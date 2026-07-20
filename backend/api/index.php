@@ -103,7 +103,8 @@ function stravaRequest(string $url, ?string $accessToken = null, ?array $body = 
     $error = curl_error($curl);
     curl_close($curl);
     if ($response === false || $status < 200 || $status >= 300) {
-        throw new RuntimeException("Strava request failed ({$status}): {$error}");
+        $detail = $error ?: substr((string) $response, 0, 500);
+        throw new RuntimeException("Strava request failed ({$status}): {$detail}");
     }
     $decoded = json_decode($response, true);
     if (!is_array($decoded)) throw new RuntimeException('Invalid Strava response.');

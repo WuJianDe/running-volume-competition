@@ -91,7 +91,7 @@ function stravaRequest(string $url, ?string $accessToken = null, ?array $body = 
 }
 
 function season(PDO $pdo): array {
-    $row = $pdo->query('SELECT season_start, season_end FROM settings WHERE id = 1')->fetch();
+    $row = $pdo->query('SELECT season_start, season_end FROM running_volume_competition_settings WHERE id = 1')->fetch();
     if (!$row) throw new RuntimeException('Season settings are missing.');
     return $row;
 }
@@ -104,7 +104,7 @@ function validAccessToken(PDO $pdo, array $token, array $config): string {
         'refresh_token' => $token['refresh_token'],
         'grant_type' => 'refresh_token',
     ]);
-    $stmt = $pdo->prepare('UPDATE runner_tokens SET access_token = ?, refresh_token = ?, expires_at = ? WHERE runner_id = ?');
+    $stmt = $pdo->prepare('UPDATE running_volume_competition_runner_tokens SET access_token = ?, refresh_token = ?, expires_at = ? WHERE runner_id = ?');
     $stmt->execute([$refreshed['access_token'], $refreshed['refresh_token'], $refreshed['expires_at'], $token['runner_id']]);
     return $refreshed['access_token'];
 }
@@ -123,11 +123,11 @@ function syncRunner(PDO $pdo, array $token, array $config, array $season): void 
     $elevation = (int) round(array_sum(array_map(fn($a) => $a['total_elevation_gain'] ?? 0, $runs)));
     $pdo->beginTransaction();
     try {
-        $pdo->prepare('UPDATE runners SET distance = ?, elevation = ?, activities = ?, synced_at = UTC_TIMESTAMP() WHERE id = ?')
+        $pdo->prepare('UPDATE running_volume_competition_runners SET distance = ?, elevation = ?, activities = ?, synced_at = UTC_TIMESTAMP() WHERE id = ?')
             ->execute([$distance, $elevation, count($runs), $token['runner_id']]);
-        $pdo->prepare('DELETE FROM activities WHERE runner_id = ?')->execute([$token['runner_id']]);
+        $pdo->prepare('DELETE FROM running_volume_competition_activities WHERE runner_id = ?')->execute([$token['runner_id']]);
         if ($runs) {
-            $activityStmt = $pdo->prepare('INSERT INTO activities (id, runner_id, name, distance, elevation, start_date) VALUES (?, ?, ?, ?, ?, ?)');
+            $activityStmt = $pdo->prepare('INSERT INTO running_volume_competition_activities (id, runner_id, name, distance, elevation, start_date) VALUES (?, ?, ?, ?, ?, ?)');
             foreach ($runs as $run) {
                 $activityStmt->execute([(int) $run['id'], $token['runner_id'], (string) ($run['name'] ?? ''), (int) round($run['distance'] ?? 0), (int) round($run['total_elevation_gain'] ?? 0), gmdate('Y-m-d H:i:s', strtotime($run['start_date']))]);
             }
@@ -148,38 +148,38 @@ try {
     if ($path === '/admin/season' && $method === 'POST') {
         requireAdmin($config); $body = requestBody(); $start = $body['season_start'] ?? ''; $end = $body['season_end'] ?? '';
         if (!$start || !$end || strtotime($start) > strtotime($end)) jsonResponse(['error' => 'Invalid season range'], 400);
-        $pdo->prepare('UPDATE settings SET season_start = ?, season_end = ? WHERE id = 1')->execute([$start, $end]); jsonResponse(['success' => true]);
+        $pdo->prepare('UPDATE running_volume_competition_settings SET season_start = ?, season_end = ? WHERE id = 1')->execute([$start, $end]); jsonResponse(['success' => true]);
     }
     if ($path === '/admin/add-runner' && $method === 'POST') {
         requireAdmin($config); $body = requestBody(); $name = trim((string) ($body['name'] ?? '')); $avatar = trim((string) ($body['avatar'] ?? '')); $team = $body['team'] ?? '';
         if ($name === '' || $avatar === '' || !in_array($team, ['A', 'B'], true)) jsonResponse(['error' => 'Invalid runner data'], 400);
-        $id = uuid(); $pdo->prepare('INSERT INTO runners (id, name, avatar, team) VALUES (?, ?, ?, ?)')->execute([$id, $name, $avatar, $team]); jsonResponse(['id' => $id], 201);
+        $id = uuid(); $pdo->prepare('INSERT INTO running_volume_competition_runners (id, name, avatar, team) VALUES (?, ?, ?, ?)')->execute([$id, $name, $avatar, $team]); jsonResponse(['id' => $id], 201);
     }
     if ($path === '/admin/update-runner' && $method === 'POST') {
         requireAdmin($config); $body = requestBody(); $id = $body['id'] ?? ''; $name = trim((string) ($body['name'] ?? '')); $avatar = trim((string) ($body['avatar'] ?? '')); $team = $body['team'] ?? '';
         if (!$id || $name === '' || $avatar === '' || !in_array($team, ['A', 'B'], true)) jsonResponse(['error' => 'Invalid runner data'], 400);
-        $pdo->prepare('UPDATE runners SET name = ?, avatar = ?, team = ? WHERE id = ?')->execute([$name, $avatar, $team, $id]); jsonResponse(['success' => true]);
+        $pdo->prepare('UPDATE running_volume_competition_runners SET name = ?, avatar = ?, team = ? WHERE id = ?')->execute([$name, $avatar, $team, $id]); jsonResponse(['success' => true]);
     }
     if ($path === '/admin/delete-runner' && $method === 'POST') {
         requireAdmin($config); $id = requestBody()['id'] ?? ''; if (!$id) jsonResponse(['error' => 'Missing runner id'], 400);
-        $pdo->prepare('DELETE FROM runners WHERE id = ?')->execute([$id]); jsonResponse(['success' => true]);
+        $pdo->prepare('DELETE FROM running_volume_competition_runners WHERE id = ?')->execute([$id]); jsonResponse(['success' => true]);
     }
     if ($method === 'GET' && $path === '/runners') {
-        jsonResponse($pdo->query('SELECT id, name, avatar, distance, elevation, activities, team, synced_at FROM runners ORDER BY created_at')->fetchAll());
+        jsonResponse($pdo->query('SELECT id, name, avatar, distance, elevation, activities, team, synced_at FROM running_volume_competition_runners ORDER BY created_at')->fetchAll());
     }
     if ($method === 'GET' && preg_match('#^/runners/([\w-]+)$#', $path, $match)) {
-        $stmt = $pdo->prepare('SELECT id, name, avatar, distance, elevation, activities, team, synced_at FROM runners WHERE id = ?');
+        $stmt = $pdo->prepare('SELECT id, name, avatar, distance, elevation, activities, team, synced_at FROM running_volume_competition_runners WHERE id = ?');
         $stmt->execute([$match[1]]);
         $runner = $stmt->fetch();
         $runner ? jsonResponse($runner) : jsonResponse(['error' => 'Runner not found'], 404);
     }
     if ($method === 'GET' && preg_match('#^/runners/([\w-]+)/activities$#', $path, $match)) {
-        $stmt = $pdo->prepare('SELECT id, name, distance, elevation, start_date FROM activities WHERE runner_id = ? ORDER BY start_date DESC');
+        $stmt = $pdo->prepare('SELECT id, name, distance, elevation, start_date FROM running_volume_competition_activities WHERE runner_id = ? ORDER BY start_date DESC');
         $stmt->execute([$match[1]]);
         jsonResponse($stmt->fetchAll());
     }
     if ($method === 'GET' && $path === '/activities') {
-        $stmt = $pdo->query('SELECT a.id, a.name, a.distance, a.elevation, a.start_date, r.id AS runner_id, r.name AS runner_name, r.avatar AS runner_avatar, r.team AS runner_team FROM activities a JOIN runners r ON r.id = a.runner_id ORDER BY a.start_date DESC LIMIT 5');
+        $stmt = $pdo->query('SELECT a.id, a.name, a.distance, a.elevation, a.start_date, r.id AS runner_id, r.name AS runner_name, r.avatar AS runner_avatar, r.team AS runner_team FROM running_volume_competition_activities a JOIN running_volume_competition_runners r ON r.id = a.runner_id ORDER BY a.start_date DESC LIMIT 5');
         jsonResponse($stmt->fetchAll());
     }
     if ($method === 'GET' && $path === '/season') jsonResponse(season($pdo));
@@ -192,27 +192,27 @@ try {
         $team = $body['team'] ?? '';
         if ($name === '' || $avatar === '' || !in_array($team, ['A', 'B'], true)) jsonResponse(['error' => 'Invalid runner data'], 400);
         $id = uuid();
-        $pdo->prepare('INSERT INTO runners (id, name, avatar, team) VALUES (?, ?, ?, ?)')->execute([$id, $name, $avatar, $team]);
+        $pdo->prepare('INSERT INTO running_volume_competition_runners (id, name, avatar, team) VALUES (?, ?, ?, ?)')->execute([$id, $name, $avatar, $team]);
         jsonResponse(['id' => $id], 201);
     }
     if ($method === 'PATCH' && preg_match('#^/admin/runners/([\w-]+)$#', $path, $match)) {
         requireAdmin($config);
         $body = requestBody(); $name = trim((string) ($body['name'] ?? '')); $avatar = trim((string) ($body['avatar'] ?? '')); $team = $body['team'] ?? '';
         if ($name === '' || $avatar === '' || !in_array($team, ['A', 'B'], true)) jsonResponse(['error' => 'Invalid runner data'], 400);
-        $pdo->prepare('UPDATE runners SET name = ?, avatar = ?, team = ? WHERE id = ?')->execute([$name, $avatar, $team, $match[1]]);
+        $pdo->prepare('UPDATE running_volume_competition_runners SET name = ?, avatar = ?, team = ? WHERE id = ?')->execute([$name, $avatar, $team, $match[1]]);
         jsonResponse(['success' => true]);
     }
     if ($method === 'DELETE' && preg_match('#^/admin/runners/([\w-]+)$#', $path, $match)) {
-        requireAdmin($config); $pdo->prepare('DELETE FROM runners WHERE id = ?')->execute([$match[1]]); jsonResponse(['success' => true]);
+        requireAdmin($config); $pdo->prepare('DELETE FROM running_volume_competition_runners WHERE id = ?')->execute([$match[1]]); jsonResponse(['success' => true]);
     }
     if ($method === 'PUT' && $path === '/admin/season') {
         requireAdmin($config); $body = requestBody(); $start = $body['season_start'] ?? ''; $end = $body['season_end'] ?? '';
         if (!$start || !$end || strtotime($start) > strtotime($end)) jsonResponse(['error' => 'Invalid season range'], 400);
-        $pdo->prepare('UPDATE settings SET season_start = ?, season_end = ? WHERE id = 1')->execute([$start, $end]); jsonResponse(['success' => true]);
+        $pdo->prepare('UPDATE running_volume_competition_settings SET season_start = ?, season_end = ? WHERE id = 1')->execute([$start, $end]); jsonResponse(['success' => true]);
     }
     if ($method === 'GET' && $path === '/strava/auth') {
         $runnerId = $_GET['runner_id'] ?? '';
-        $stmt = $pdo->prepare('SELECT id FROM runners WHERE id = ?'); $stmt->execute([$runnerId]);
+        $stmt = $pdo->prepare('SELECT id FROM running_volume_competition_runners WHERE id = ?'); $stmt->execute([$runnerId]);
         if (!$stmt->fetch()) jsonResponse(['error' => 'Runner not found'], 404);
         $state = bin2hex(random_bytes(32)); $_SESSION['strava_state'] = ['value' => $state, 'runner_id' => $runnerId, 'expires' => time() + 600];
         $params = http_build_query(['client_id' => $config['strava_client_id'], 'redirect_uri' => rtrim($config['app_url'], '/') . '/api/strava/callback', 'response_type' => 'code', 'scope' => 'activity:read_all', 'approval_prompt' => 'auto', 'state' => $state]);
@@ -224,11 +224,11 @@ try {
         if (isset($_GET['error'])) { header('Location: ' . rtrim($config['app_url'], '/') . '/?connect=' . urlencode($saved['runner_id']) . '&error=denied', true, 302); exit; }
         $code = $_GET['code'] ?? ''; if (!$code) { http_response_code(400); exit('Missing authorization code.'); }
         $token = stravaRequest('https://www.strava.com/oauth/token', null, ['client_id' => $config['strava_client_id'], 'client_secret' => $config['strava_client_secret'], 'code' => $code, 'grant_type' => 'authorization_code']);
-        $pdo->prepare('INSERT INTO runner_tokens (runner_id, athlete_id, access_token, refresh_token, expires_at) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE athlete_id = VALUES(athlete_id), access_token = VALUES(access_token), refresh_token = VALUES(refresh_token), expires_at = VALUES(expires_at)')->execute([$saved['runner_id'], $token['athlete']['id'], $token['access_token'], $token['refresh_token'], $token['expires_at']]);
+        $pdo->prepare('INSERT INTO running_volume_competition_runner_tokens (runner_id, athlete_id, access_token, refresh_token, expires_at) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE athlete_id = VALUES(athlete_id), access_token = VALUES(access_token), refresh_token = VALUES(refresh_token), expires_at = VALUES(expires_at)')->execute([$saved['runner_id'], $token['athlete']['id'], $token['access_token'], $token['refresh_token'], $token['expires_at']]);
         header('Location: ' . rtrim($config['app_url'], '/') . '/?connected=true', true, 302); exit;
     }
     if ($method === 'POST' && $path === '/admin/sync') {
-        requireAdmin($config); $tokens = $pdo->query('SELECT * FROM runner_tokens')->fetchAll(); $range = season($pdo); $results = [];
+        requireAdmin($config); $tokens = $pdo->query('SELECT * FROM running_volume_competition_runner_tokens')->fetchAll(); $range = season($pdo); $results = [];
         foreach ($tokens as $token) { try { syncRunner($pdo, $token, $config, $range); $results[] = ['runner_id' => $token['runner_id'], 'success' => true]; } catch (Throwable $e) { error_log('Strava sync failed: ' . $e->getMessage()); $results[] = ['runner_id' => $token['runner_id'], 'success' => false]; } }
         jsonResponse(['synced' => count(array_filter($results, fn($result) => $result['success'])), 'results' => $results]);
     }

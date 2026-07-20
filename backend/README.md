@@ -1,16 +1,41 @@
 # Cloudways PHP + MySQL 部署
 
-1. 在 Cloudways 建立 MySQL database，將 `schema.sql` 匯入該資料庫。資料表皆以 `running_volume_competition_` 為前綴。
-2. 將 `config.example.php` 複製成 `config.local.php`，填入 Cloudways 的資料庫憑證、正式網域、Strava OAuth credentials 與高強度 `admin_secret`。此檔不可上傳至 Git。
-3. 將 `backend/api/` 部署到 `public_html/running-volume-competition/api/`，並將專案根目錄 `api.php` 部署到 `public_html/running-volume-competition/api.php`。
-4. 複製 `.env.example` 為 `.env.local`，執行 `npm run build`，將 `dist/` 內容與根目錄 `.htaccess` 部署到 `public_html/running-volume-competition/`。
-5. `config.local.php` 的 `app_url` 必須包含子目錄，例如 `https://你的網域/running-volume-competition`。
-6. 在 Strava Application 設定 Redirect URI：`https://你的網域/running-volume-competition/api.php?_route=/strava/callback`。
+## 部署內容
 
-PHP 7.4+ 必須啟用 PDO MySQL 與 cURL 擴充功能。Cloudways 的 Apache rewrite module 預設可處理 `api/.htaccess` 路由。
+執行 `npm run build` 後，所有網站部署檔案都位於 `dist/`。
 
-若已匯入舊版 schema，請先備份資料庫，再執行一次 `migrate_table_prefix.sql` 將既有資料表改名。
+1. 編輯 `dist/config.local.php`，填入 Cloudways MySQL、Strava 及 `admin_secret` 設定。
+2. 將 `dist/_database/schema.sql` 匯入 MySQL；不要將 `_database/` 上傳到公開網站根目錄。
+3. 將 `dist/` 內其餘內容（包含隱藏 `.htaccess`）上傳到：
 
-## 排程同步（建議）
+```text
+/applications/ssehtjqyxe/public_html/running-volume-competition/
+```
 
-建議在 Cloudways Cron Job 每 15 分鐘呼叫一次 `POST /api/admin/sync`，並附帶 `X-Admin-Secret`。目前前端同步按鈕也會要求輸入同一組管理密鑰；此設計避免公開端點耗盡 Strava API 額度。
+4. 清除 Cloudways Varnish cache。
+
+PHP 需要 7.4+、PDO MySQL 與 cURL 擴充功能。
+
+## 必要設定
+
+`config.local.php` 的 `app_url` 必須包含子目錄：
+
+```php
+'app_url' => 'https://你的網域/running-volume-competition',
+```
+
+Strava Redirect URI：
+
+```text
+https://你的網域/running-volume-competition/api.php?_route=/strava/callback
+```
+
+Strava Authorization Callback Domain 僅填網域，例如 `demo.adevic.dev`。
+
+## Strava API 存取
+
+建立 API Application 的 Strava 帳號必須維持有效訂閱。新 app 預設為單一使用者模式；多人跑者連結前，請在 Strava API Settings Dashboard 升級 access tier。詳見 [Strava Getting Started](https://developers.strava.com/docs/getting-started/)。
+
+## 診斷
+
+部署期間可開啟 `api-health.php` 檢查 PHP 版本、設定檔、資料庫及必要擴充功能。確認完成後請刪除該檔案。

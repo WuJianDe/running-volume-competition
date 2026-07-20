@@ -1,46 +1,46 @@
 # Running League
 
-跑步量競賽排行榜，依每季的跑步距離與爬升計算隊伍積分。
+以季為單位統計跑步距離與爬升的團隊排行榜。
 
 ## 技術架構
 
 - 前端：Vue 3、TypeScript、Vite、Tailwind CSS
 - 後端：PHP 7.4+、MySQL、cURL
-- 部署：Cloudways
-- 資料來源：Strava OAuth 2.0
+- 部署：Cloudways 子目錄 `/running-volume-competition/`
+- 活動資料：Strava OAuth 2.0
 
 ## 計分規則
 
 `積分 = floor(距離（公尺）/ 1000) + floor(爬升（公尺）/ 100)`
 
-## 本機前端開發
+## 建置與部署
 
 ```bash
 npm install
-cp .env.example .env.local
-npm run dev
-```
-
-預設部署位置已固定為 `/running-volume-competition/`。若改用其他子目錄或 PHP API 位於其他位置，請在 `.env.local` 覆寫。
-
-## Cloudways 部署
-
-完整步驟見 [backend/README.md](backend/README.md)：
-
-1. 匯入 `backend/schema.sql` 至 MySQL。
-2. 複製 `backend/config.example.php` 為 `backend/config.local.php` 並填入憑證。
-3. 將 `backend/api/` 部署至 `public_html/running-volume-competition/api/`，並將根目錄 `api.php` 一併部署。
-4. 建置前端後，將 `dist/` 內容與根目錄 `.htaccess` 部署至 `public_html/running-volume-competition/`。
-5. 在 Strava 設定 callback URL：`https://你的網域/running-volume-competition/api.php?_route=/strava/callback`。
-
-管理頁採用不依賴伺服器 rewrite 的 hash 路由：`https://你的網域/running-volume-competition/#/admin`。
-
-## 常用指令
-
-`npm run build` 完成後，`dist/` 會包含前端、PHP API、Apache rewrite、`config.local.php` 範本與 Cloudways 上傳說明。
-
-```bash
-npm run dev
 npm run build
-npm run preview
 ```
+
+建置後，`dist/` 會包含前端、PHP API、`.htaccess`、`config.local.php` 範本、資料庫 schema 與 Cloudways 上傳說明。請依 `dist/UPLOAD_TO_CLOUDWAYS.md` 部署。
+
+管理頁使用不依賴伺服器 rewrite 的 hash 路由：
+
+```text
+https://你的網域/running-volume-competition/#/admin
+```
+
+## Strava 設定與限制
+
+1. 在 Strava API Settings 使用建立此 API app 的帳號維持有效訂閱；Strava 將訂閱列為建立與使用 API app 的前提。
+2. 新 API app 預設為單一使用者模式。若要讓多位跑者連結，請在 Strava API Settings Dashboard 升級存取層級；初始升級通常可支援最多 10 位 athlete。
+3. Authorization Callback Domain 設為純網域，例如 `demo.adevic.dev`。
+4. Redirect URI 設為：
+
+```text
+https://你的網域/running-volume-competition/api.php?_route=/strava/callback
+```
+
+5. 每位跑者須從管理頁的連結完成 OAuth 授權，接著在首頁同步 Strava。
+
+> Strava API 條款可能限制支援虛擬競賽或 competitions 的使用案例。上線多人競賽前，請確認產品用途符合 [Strava API Agreement](https://developers.strava.com/)。
+
+官方文件：[Getting Started](https://developers.strava.com/docs/getting-started/)｜[Authentication](https://developers.strava.com/docs/authentication/)

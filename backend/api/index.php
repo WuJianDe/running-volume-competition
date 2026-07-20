@@ -248,9 +248,21 @@ try {
         header('Location: ' . rtrim($config['app_url'], '/') . '/?connected=true', true, 302); exit;
     }
     if ($method === 'POST' && $path === '/admin/sync') {
-        requireAdmin($config); $tokens = $pdo->query('SELECT * FROM running_volume_competition_runner_tokens')->fetchAll(); $range = season($pdo); $results = [];
-        foreach ($tokens as $token) { try { syncRunner($pdo, $token, $config, $range); $results[] = ['runner_id' => $token['runner_id'], 'success' => true]; } catch (Throwable $e) { error_log('Strava sync failed: ' . $e->getMessage()); $results[] = ['runner_id' => $token['runner_id'], 'success' => false]; } }
-        jsonResponse(['synced' => count(array_filter($results, fn($result) => $result['success'])), 'results' => $results]);
+        requireAdmin($config); $tokens = $pdo->query('SELECT * FROM running_volume_competition_runner_tokens')->fetchAll();
+        if (!$tokens) jsonResponse(['synced' => 0, 'connected_runners' => 0, 'message' => 'No runners are connected to Strava.', 'results' => []]);
+
+        $range = season($pdo); $results = [];
+        foreach ($tokens as $token) {
+            try {
+                syncRunner($pdo, $token, $config, $range);
+                $results[] = ['runner_id' => $token['runner_id'], 'success' => true];
+            } catch (Throwable $e) {
+                error_log('Strava sync failed: ' . $e->getMessage());
+                $results[] = ['runner_id' => $token['runner_id'], 'success' => false, 'error' => $e->getMessage()];
+            }
+        }
+        $synced = count(array_filter($results, fn($result) => $result['success']));
+        jsonResponse(['synced' => $synced, 'connected_runners' => count($tokens), 'message' => $synced ? null : 'No runner could be synchronized.', 'results' => $results]);
     }
     jsonResponse(['error' => 'Not found'], 404);
 } catch (Throwable $e) {

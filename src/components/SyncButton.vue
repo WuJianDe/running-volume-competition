@@ -14,8 +14,17 @@ async function sync() {
   if (!secret) return
   syncing.value = true; message.value = ''
   try {
-    const result = await api<{ synced: number }>('/admin/sync', { method: 'POST', headers: adminHeaders(secret) })
-    message.value = `已同步 ${result.synced} 位跑者`; emit('synced')
+    const result = await api<{
+      synced: number
+      connected_runners: number
+      message?: string
+      results: Array<{ success: boolean; error?: string }>
+    }>('/admin/sync', { method: 'POST', headers: adminHeaders(secret) })
+    const failed = result.results.find(item => !item.success)
+    message.value = result.synced > 0
+      ? `已同步 ${result.synced} 位跑者`
+      : (failed?.error || result.message || '同步未完成')
+    if (result.synced > 0) emit('synced')
   } catch (err) { message.value = err instanceof Error ? err.message : '同步失敗' }
   finally { syncing.value = false }
 }

@@ -15,7 +15,18 @@ if (!is_file($configFile)) {
     echo json_encode(['error' => 'Server configuration is missing. Create config.local.php in the application root.']);
     exit;
 }
-$config = require $configFile;
+try {
+    $config = require $configFile;
+    if (!is_array($config)) {
+        throw new RuntimeException('Configuration must return an array.');
+    }
+} catch (Throwable $e) {
+    error_log('Running League configuration error: ' . $e->getMessage());
+    http_response_code(500);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['error' => 'Server configuration is invalid. Check config.local.php PHP syntax and return value.']);
+    exit;
+}
 
 try {
     $db = $config['db'];

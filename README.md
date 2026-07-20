@@ -5,7 +5,7 @@
 ## 技術架構
 
 - 前端：Vue 3、TypeScript、Vite、Tailwind CSS
-- 後端：PHP 8.1+、MySQL、cURL
+- 後端：PHP 7.4+、MySQL、cURL
 - 部署：Cloudways
 - 資料來源：Strava OAuth 2.0
 

@@ -7,7 +7,7 @@
 5. `config.local.php` 的 `app_url` 必須包含子目錄，例如 `https://你的網域/running-volume-competition`。
 6. 在 Strava Application 設定 Redirect URI：`https://你的網域/running-volume-competition/api/strava/callback`。
 
-PHP 必須啟用 PDO MySQL 與 cURL 擴充功能。Cloudways 的 Apache rewrite module 預設可處理 `api/.htaccess` 路由。
+PHP 7.4+ 必須啟用 PDO MySQL 與 cURL 擴充功能。Cloudways 的 Apache rewrite module 預設可處理 `api/.htaccess` 路由。
 
 若已匯入舊版 schema，請先備份資料庫，再執行一次 `migrate_table_prefix.sql` 將既有資料表改名。
 

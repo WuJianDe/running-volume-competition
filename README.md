@@ -21,7 +21,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-預設部署位置是 `/running-volume-competition/`，`.env.example` 已提供相對應的 Vite 與 API base path。若 PHP API 位於其他位置，請在 `.env.local` 覆寫。
+預設部署位置已固定為 `/running-volume-competition/`。若改用其他子目錄或 PHP API 位於其他位置，請在 `.env.local` 覆寫。
 
 ## Cloudways 部署
 
@@ -34,6 +34,8 @@ npm run dev
 5. 在 Strava 設定 callback URL：`https://你的網域/running-volume-competition/api/strava/callback`。
 
 ## 常用指令
+
+`npm run build` 完成後，`dist/` 會包含前端、PHP API、Apache rewrite、`config.local.php` 範本與 Cloudways 上傳說明。
 
 ```bash
 npm run dev

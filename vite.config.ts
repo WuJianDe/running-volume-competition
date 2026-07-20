@@ -4,7 +4,7 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  const base = env.VITE_APP_BASE || '/'
+  const base = env.VITE_APP_BASE || '/running-volume-competition/'
 
   return {
     base: base.endsWith('/') ? base : `${base}/`,

@@ -55,6 +55,11 @@ function requireAdmin(array $config): void {
 }
 
 function apiPath(): string {
+    $route = $_GET['_route'] ?? null;
+    if (is_string($route) && $route !== '') {
+        return '/' . trim($route, '/');
+    }
+
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
     $marker = '/api';
     $position = strpos($path, $marker);
@@ -219,7 +224,7 @@ try {
         $stmt = $pdo->prepare('SELECT id FROM running_volume_competition_runners WHERE id = ?'); $stmt->execute([$runnerId]);
         if (!$stmt->fetch()) jsonResponse(['error' => 'Runner not found'], 404);
         $state = bin2hex(random_bytes(32)); $_SESSION['strava_state'] = ['value' => $state, 'runner_id' => $runnerId, 'expires' => time() + 600];
-        $params = http_build_query(['client_id' => $config['strava_client_id'], 'redirect_uri' => rtrim($config['app_url'], '/') . '/api/strava/callback', 'response_type' => 'code', 'scope' => 'activity:read_all', 'approval_prompt' => 'auto', 'state' => $state]);
+        $params = http_build_query(['client_id' => $config['strava_client_id'], 'redirect_uri' => rtrim($config['app_url'], '/') . '/api.php?_route=/strava/callback', 'response_type' => 'code', 'scope' => 'activity:read_all', 'approval_prompt' => 'auto', 'state' => $state]);
         header('Location: https://www.strava.com/oauth/authorize?' . $params, true, 302); exit;
     }
     if ($method === 'GET' && $path === '/strava/callback') {

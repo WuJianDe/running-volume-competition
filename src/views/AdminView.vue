@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Trash2, Plus, ArrowLeft, Eye, EyeOff, Copy, Check, Pencil, X } from 'lucide-vue-next'
-import { api, apiBaseUrl } from '@/lib/api'
+import { api, apiUrl } from '@/lib/api'
 import type { Runner } from '@/types/runner'
 
 const router = useRouter()
@@ -52,7 +52,7 @@ async function addRunner() {
   adding.value = true
   addError.value = ''
 
-  const res = await fetch(`${apiBaseUrl}/admin/add-runner`, {
+  const res = await fetch(apiUrl('/admin/add-runner'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ const seasonError = ref('')
 const seasonSuccess = ref(false)
 
 async function loadSeason() {
-  const res = await fetch(`${apiBaseUrl}/admin/season`)
+  const res = await fetch(apiUrl('/admin/season'))
   if (res.ok) {
     const data = await res.json()
     season.value = {
@@ -95,7 +95,7 @@ async function saveSeason() {
   seasonError.value = ''
   seasonSuccess.value = false
 
-  const res = await fetch(`${apiBaseUrl}/admin/season`, {
+  const res = await fetch(apiUrl('/admin/season'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -149,7 +149,7 @@ async function saveEdit() {
   editSaving.value = true
   editError.value = ''
 
-  const res = await fetch(`${apiBaseUrl}/admin/update-runner`, {
+  const res = await fetch(apiUrl('/admin/update-runner'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-admin-secret': secret.value },
     body: JSON.stringify({ id: editingId.value, ...editForm.value }),
@@ -176,7 +176,7 @@ async function deleteRunner(id: string) {
   deletingId.value = id
   deleteError.value = ''
 
-  const res = await fetch(`${apiBaseUrl}/admin/delete-runner`, {
+  const res = await fetch(apiUrl('/admin/delete-runner'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

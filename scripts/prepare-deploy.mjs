@@ -10,6 +10,7 @@ await mkdir(resolve(dist, '_database'), { recursive: true })
 
 await Promise.all([
   copy('.htaccess', '.htaccess'),
+  copy('api.php', 'api.php'),
   copy('backend/api/index.php', 'api/index.php'),
   copy('backend/api/.htaccess', 'api/.htaccess'),
   copy('backend/config.example.php', 'config.local.php'),

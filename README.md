@@ -29,9 +29,9 @@ npm run dev
 
 1. 匯入 `backend/schema.sql` 至 MySQL。
 2. 複製 `backend/config.example.php` 為 `backend/config.local.php` 並填入憑證。
-3. 將 `backend/api/` 部署至 `public_html/running-volume-competition/api/`。
+3. 將 `backend/api/` 部署至 `public_html/running-volume-competition/api/`，並將根目錄 `api.php` 一併部署。
 4. 建置前端後，將 `dist/` 內容與根目錄 `.htaccess` 部署至 `public_html/running-volume-competition/`。
-5. 在 Strava 設定 callback URL：`https://你的網域/running-volume-competition/api/strava/callback`。
+5. 在 Strava 設定 callback URL：`https://你的網域/running-volume-competition/api.php?_route=/strava/callback`。
 
 ## 常用指令
 

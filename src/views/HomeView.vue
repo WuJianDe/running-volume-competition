@@ -6,7 +6,7 @@ import StatsSummary from '@/components/StatsSummary.vue'
 import ScoringRule from '@/components/ScoringRule.vue'
 import TeamBoard from '@/components/TeamBoard.vue'
 import SyncButton from '@/components/SyncButton.vue'
-import { api, apiBaseUrl } from '@/lib/api'
+import { api, apiUrl } from '@/lib/api'
 
 const {
   loading,
@@ -102,7 +102,7 @@ const connectRunner = computed(() =>
             <p class="text-xs mt-1" style="color: #9CA3AF">連結你的 Strava 帳號以自動同步跑步資料</p>
           </div>
           <a
-            :href="`${apiBaseUrl}/strava/auth?runner_id=${connectRunnerId}`"
+            :href="apiUrl('/strava/auth', { runner_id: connectRunnerId })"
             class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-opacity hover:opacity-80"
             style="background: #FC4C02; color: #fff"
           >

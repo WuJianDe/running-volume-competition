@@ -1,5 +1,5 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { supabase } from '@/lib/supabase'
+import { api } from '@/lib/api'
 import { calcScore } from '@/utils/format'
 import type { Runner, RankedRunner } from '@/types/runner'
 
@@ -20,26 +20,19 @@ export function useLeaderboard() {
     loading.value = true
     error.value = null
 
-    const { data, error: err } = await supabase
-      .from('runners')
-      .select('id, name, avatar, distance, elevation, activities, team, synced_at')
-
-    if (err) {
-      error.value = err.message
-    } else {
-      runners.value = (data ?? []) as Runner[]
+    try {
+      runners.value = await api<Runner[]>('/runners')
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : '載入跑者資料失敗'
+    } finally {
+      loading.value = false
     }
-    loading.value = false
   }
 
   onMounted(fetchRunners)
 
-  const channel = supabase
-    .channel('runners-realtime')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'runners' }, fetchRunners)
-    .subscribe()
-
-  onUnmounted(() => { supabase.removeChannel(channel) })
+  const refreshTimer = window.setInterval(fetchRunners, 60_000)
+  onUnmounted(() => { window.clearInterval(refreshTimer) })
 
   const rankedTeamA  = computed<RankedRunner[]>(() => rankTeam(runners.value, 'A'))
   const rankedTeamB  = computed<RankedRunner[]>(() => rankTeam(runners.value, 'B'))

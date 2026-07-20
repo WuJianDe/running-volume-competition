@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Trash2, Plus, ArrowLeft, Eye, EyeOff, Copy, Check, Pencil, X } from 'lucide-vue-next'
-import { supabase } from '@/lib/supabase'
+import { api } from '@/lib/api'
 import type { Runner } from '@/types/runner'
 
 const router = useRouter()
@@ -28,12 +28,11 @@ const loadingRunners = ref(false)
 
 async function loadRunners() {
   loadingRunners.value = true
-  const { data } = await supabase
-    .from('runners')
-    .select('id, name, avatar, team, distance, elevation, activities')
-    .order('team')
-  runners.value = (data ?? []) as Runner[]
-  loadingRunners.value = false
+  try {
+    runners.value = await api<Runner[]>('/runners')
+  } finally {
+    loadingRunners.value = false
+  }
 }
 
 onMounted(() => {

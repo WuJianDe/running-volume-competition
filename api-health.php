@@ -6,6 +6,7 @@ header('Content-Type: application/json; charset=utf-8');
 $configFile = __DIR__ . '/config.local.php';
 $configValid = false;
 $databaseConnected = false;
+$configError = null;
 
 if (is_file($configFile)) {
     try {
@@ -23,13 +24,16 @@ if (is_file($configFile)) {
         }
     } catch (Throwable $e) {
         $configValid = false;
+        $configError = get_class($e) . ': ' . $e->getMessage();
     }
 }
 
 echo json_encode([
     'php_version' => PHP_VERSION,
     'config_exists' => is_file($configFile),
+    'config_readable' => is_readable($configFile),
     'config_valid' => $configValid,
+    'config_error' => $configError,
     'database_connected' => $databaseConnected,
     'api_entry_exists' => is_file(__DIR__ . '/api/index.php'),
     'pdo_mysql_enabled' => extension_loaded('pdo_mysql'),

@@ -74,8 +74,8 @@ jobs:
             --exclude '_database/' \
             --exclude 'config.local.php' \
             dist/ "cloudways:$REMOTE_PATH"
-          # config.local.php holds secrets: upload it separately with restrictive permissions
-          rsync -z --chmod=F600 dist/config.local.php "cloudways:${REMOTE_PATH}config.local.php"
+          # config.local.php holds secrets: upload it separately readable by the PHP user (Cloudways runs PHP as a different account than SSH)
+          rsync -z --chmod=F644 dist/config.local.php "cloudways:${REMOTE_PATH}config.local.php"
 
       - name: Smoke test
         run: |

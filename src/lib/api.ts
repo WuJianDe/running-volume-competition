@@ -34,3 +34,19 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
 export function adminHeaders(secret: string): HeadersInit {
   return { 'Content-Type': 'application/json', 'X-Admin-Secret': secret }
 }
+
+export function adminApi<T>(secret: string, path: string, method = 'GET', body?: unknown): Promise<T> {
+  return api<T>(path, {
+    method,
+    headers: adminHeaders(secret),
+    body: body === undefined ? undefined : JSON.stringify(body),
+  })
+}
+
+const ADMIN_SECRET_KEY = 'admin_secret'
+
+export const adminSecretStore = {
+  get: () => sessionStorage.getItem(ADMIN_SECRET_KEY) ?? '',
+  set: (secret: string) => sessionStorage.setItem(ADMIN_SECRET_KEY, secret),
+  clear: () => sessionStorage.removeItem(ADMIN_SECRET_KEY),
+}

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { RefreshCw } from 'lucide-vue-next'
-import { adminHeaders, api } from '@/lib/api'
+import { ApiError, adminSecretStore, adminApi } from '@/lib/api'
 
 const props = defineProps<{ lastSyncedAt: string | null }>()
 const emit = defineEmits<{ synced: [] }>()
@@ -10,22 +10,25 @@ const message = ref('')
 const lastSyncLabel = computed(() => props.lastSyncedAt ? new Date(props.lastSyncedAt).toLocaleString('zh-TW') : '')
 
 async function sync() {
-  const secret = window.prompt('請輸入管理密鑰以同步 Strava')
+  const secret = adminSecretStore.get() || window.prompt('請輸入管理密鑰以同步 Strava')
   if (!secret) return
   syncing.value = true; message.value = ''
   try {
-    const result = await api<{
+    const result = await adminApi<{
       synced: number
       connected_runners: number
       message?: string
       results: Array<{ success: boolean; error?: string }>
-    }>('/admin/sync', { method: 'POST', headers: adminHeaders(secret) })
+    }>(secret, '/admin/sync', 'POST')
     const failed = result.results.find(item => !item.success)
     message.value = result.synced > 0
       ? `已同步 ${result.synced} 位跑者`
       : (failed?.error || result.message || '同步未完成')
     if (result.synced > 0) emit('synced')
-  } catch (err) { message.value = err instanceof Error ? err.message : '同步失敗' }
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 401) adminSecretStore.clear()
+    message.value = err instanceof Error ? err.message : '同步失敗'
+  }
   finally { syncing.value = false }
 }
 </script>

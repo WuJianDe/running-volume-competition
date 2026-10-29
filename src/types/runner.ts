@@ -1,3 +1,5 @@
+import type { TeamId } from '@/lib/teams'
+
 export interface Runner {
   id: string
   name: string
@@ -5,8 +7,18 @@ export interface Runner {
   distance: number   // 單位：公尺
   elevation: number  // 單位：公尺
   activities: number // 活動次數
-  team: 'A' | 'B'
+  team: TeamId
   synced_at: string | null
+}
+
+export interface AdminRunner extends Runner {
+  connect_token: string
+  strava_connected: boolean
+}
+
+export interface Season {
+  season_start: string
+  season_end: string
 }
 
 export interface RankedRunner extends Runner {

@@ -1,9 +1,11 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { api } from '@/lib/api'
 import { calcScore } from '@/utils/format'
-import type { Runner, RankedRunner } from '@/types/runner'
+import type { TeamId } from '@/lib/teams'
+import { TEAMS } from '@/lib/teams'
+import type { Runner, RankedRunner, Season } from '@/types/runner'
 
-function rankTeam(runners: Runner[], team: 'A' | 'B'): RankedRunner[] {
+function rankTeam(runners: Runner[], team: TeamId): RankedRunner[] {
   return runners
     .filter(r => r.team === team)
     .map(r => ({ ...r, score: calcScore(r.distance, r.elevation) }))
@@ -16,16 +18,19 @@ export function useLeaderboard() {
   const loading = ref(true)
   const error = ref<string | null>(null)
 
+  const season = ref<Season | null>(null)
+  let refreshTimer: number | undefined
+
   async function fetchRunners() {
-    loading.value = true
     error.value = null
 
     try {
-      const data = await api<unknown>('/runners')
-      if (!Array.isArray(data)) {
-        throw new Error('API returned an invalid runner list. Please check /api/runners.')
+      const data = await api<{ season: Season; runners: Runner[] }>('/overview')
+      if (!Array.isArray(data.runners)) {
+        throw new Error('API returned an invalid runner list. Please check /api/overview.')
       }
-      runners.value = data as Runner[]
+      runners.value = data.runners
+      season.value = data.season
     } catch (err) {
       error.value = err instanceof Error ? err.message : '載入跑者資料失敗'
     } finally {
@@ -33,9 +38,10 @@ export function useLeaderboard() {
     }
   }
 
-  onMounted(fetchRunners)
-
-  const refreshTimer = window.setInterval(fetchRunners, 60_000)
+  onMounted(() => {
+    fetchRunners()
+    refreshTimer = window.setInterval(fetchRunners, 60_000)
+  })
   onUnmounted(() => { window.clearInterval(refreshTimer) })
 
   const rankedTeamA  = computed<RankedRunner[]>(() => rankTeam(runners.value, 'A'))
@@ -47,8 +53,8 @@ export function useLeaderboard() {
   const totalElevation = computed(() => runners.value.reduce((s, r) => s + r.elevation, 0))
 
   const leadingTeam = computed(() => {
-    if (teamAScore.value > teamBScore.value) return '紅隊'
-    if (teamBScore.value > teamAScore.value) return '藍隊'
+    if (teamAScore.value > teamBScore.value) return TEAMS.A.name
+    if (teamBScore.value > teamAScore.value) return TEAMS.B.name
     return '平手'
   })
 
@@ -63,6 +69,7 @@ export function useLeaderboard() {
   return {
     loading,
     error,
+    season,
     rankedTeamA,
     rankedTeamB,
     teamAScore,

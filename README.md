@@ -13,7 +13,22 @@
 
 `積分 = floor(距離（公尺）/ 1000) + floor(爬升（公尺）/ 100)`
 
-## 建置與部署
+## 自動部署（GitHub Actions → Cloudways）
+
+推送到 `main` 會觸發 `.github/workflows/deploy.yml`：建置、（可選）匯入資料表、以 rsync 上傳到
+`/home/master/applications/nnbcjxmqpm/public_html/running-volume-competition/`，最後打 `api-health.php` 做冒煙測試。
+
+需要的 repository secrets（Settings → Secrets and variables → Actions）：
+
+| Secret | 說明 |
+|---|---|
+| `SSH_PRIVATE_KEY` | 部署用 SSH 私鑰；對應公鑰需加入 Cloudways 應用程式的 SSH 授權金鑰 |
+| `CONFIG_LOCAL_PHP` | 完整的 `config.local.php` 內容（範本見 `backend/config.example.php`） |
+| `DB_PASSWORD` | 選填；設定後每次部署會執行冪等的 `schema.sql` |
+
+資料表一律加上 `running_volume_competition_` 前綴。管理員密碼同時用來簽署跑者的私人 Strava 授權連結，更換後需重新複製連結。
+
+## 手動建置與部署
 
 ```bash
 npm install
